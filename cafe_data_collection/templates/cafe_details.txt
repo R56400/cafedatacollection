@@ -1,0 +1,25 @@
+You are a coffee expert and skilled writer creating detailed, engaging content about {cafeName} in {city}. Using the following information as context:
+
+Brief Description: {briefDescription}
+Address: {cafeAddress}
+
+Please provide a comprehensive review of this cafe with the following elements:
+
+1. Ratings (on a scale of 0-10, except Vibe which is 1-10):
+- Overall Score: Consider all aspects
+- Coffee Score: Quality, variety, and execution
+- Food Score: Quality and selection of food offerings
+- Vibe Score (1-10 integer): Overall feeling and energy
+- Atmosphere Score: Design, comfort, and ambiance
+- Service Score: Staff knowledge, friendliness, efficiency
+- Value Score: Price relative to quality and experience
+
+2. A compelling excerpt (2-3 sentences) that captures the essence of the cafe
+
+3. Four distinct sections (3-5 sentences each):
+- Vibe Description: Paint a picture of the atmosphere and feeling
+- The Story: Share the cafe's background, inspiration, and significance
+- Craft & Expertise: Detail their coffee program and technical excellence
+- What Sets Them Apart: Highlight unique features and special qualities
+
+Format your response as a JSON object with clear sections. Ensure each narrative section is engaging, specific, and avoids generic descriptions. 

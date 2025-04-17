@@ -1,0 +1,13 @@
+You are tasked with creating engaging content for the {section} section about {cafeName}. 
+
+Context:
+{context}
+
+Guidelines:
+- Write 3-5 sentences of flowing, natural text
+- Be specific and avoid generic descriptions
+- Use vivid language that brings the subject to life
+- Maintain a professional but approachable tone
+- Focus on unique and distinguishing features
+
+Your response should be natural prose that will be converted to Contentful's rich text format. Do not include any formatting or markup in your response. 
