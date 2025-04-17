@@ -41,12 +41,26 @@ class ExcelExporter:
             except (KeyError, TypeError):
                 return ''
         
+        # Helper function to extract URL from social link
+        def get_social_link_url(rich_text: Optional[Dict]) -> str:
+            if not rich_text:
+                return ''
+            try:
+                for content in rich_text['content']:
+                    if content['nodeType'] == 'hyperlink':
+                        return content['data']['uri']
+                return ''
+            except (KeyError, TypeError):
+                return ''
+        
         return {
             'Cafe Name': review.cafeName,
             'Author': review.authorName,
             'Publish Date': review.publishDate,
             'Slug': review.slug,
             'Excerpt': review.excerpt,
+            'Instagram Link': get_social_link_url(review.instagramLink.dict() if review.instagramLink else None),
+            'Facebook Link': get_social_link_url(review.facebookLink.dict() if review.facebookLink else None),
             'Overall Score': review.overallScore,
             'Coffee Score': review.coffeeScore,
             'Food Score': review.foodScore,
@@ -56,6 +70,9 @@ class ExcelExporter:
             'Value Score': review.valueScore,
             'Address': review.cafeAddress,
             'City ID': review.cityReference.get('id', ''),
+            'Latitude': review.cafeLatLon.lat if review.cafeLatLon else '',
+            'Longitude': review.cafeLatLon.lon if review.cafeLatLon else '',
+            'Place ID': review.placeId,
             'Vibe Description': get_rich_text_content(review.vibeDescription.dict()),
             'The Story': get_rich_text_content(review.theStory.dict()),
             'Craft & Expertise': get_rich_text_content(review.craftExpertise.dict()),
@@ -99,10 +116,15 @@ class ExcelExporter:
             'Cafe Name',
             'Address',
             'City ID',
+            'Place ID',
+            'Latitude',
+            'Longitude',
             'Slug',
             'Author',
             'Publish Date',
             'Excerpt',
+            'Instagram Link',
+            'Facebook Link',
             'Overall Score',
             'Coffee Score',
             'Food Score',

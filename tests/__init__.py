@@ -1,0 +1,1 @@
+"""Test suite for cafe_data_collection package.""" 

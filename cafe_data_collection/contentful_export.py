@@ -68,6 +68,12 @@ class ContentfulExporter:
                 "excerpt": {
                     "en-US": review.excerpt
                 },
+                "instagramLink": {
+                    "en-US": review.instagramLink.dict() if review.instagramLink else None
+                },
+                "facebookLink": {
+                    "en-US": review.facebookLink.dict() if review.facebookLink else None
+                },
                 "overallScore": {
                     "en-US": review.overallScore
                 },
@@ -112,6 +118,15 @@ class ContentfulExporter:
                             "id": review.cityReference["id"]
                         }
                     }
+                },
+                "cafeLatLon": {
+                    "en-US": {
+                        "lat": review.cafeLatLon.lat,
+                        "lon": review.cafeLatLon.lon
+                    } if review.cafeLatLon else None
+                },
+                "placeId": {
+                    "en-US": review.placeId
                 }
             }
         }
