@@ -6,19 +6,25 @@ Focus on:
 - Places known for their coffee quality and craft
 - Cafes with distinctive atmosphere or concept
 - Must be verified through recent reviews or official business listings
+- Must be primarily a coffee shop/cafe (not a hotel, restaurant, or other business type that happens to serve coffee)
 
 For each cafe, provide:
 - Full name of the cafe (exactly as it appears on their storefront/official listings)
 - Complete street address (verified through Google Maps or official business listing)
 - A brief one-sentence description of what makes this cafe special
-- A note confirming how you verified this cafe is currently operating (e.g. "Verified via Yelp reviews from March 2025")
+- A detailed verification note including:
+  * The source of verification (e.g. Yelp, Google Maps, official website)
+  * Confirmation that it's primarily a coffee shop/cafe
+  * Date of most recent reviews/activity
+  * Business category/type as listed on verification source
 
 Format your response as a list of JSON objects with the following structure:
 [
-  {
+  {{
     "cafeName": "string",
     "cafeAddress": "string",
     "excerpt": "string",
-    "verificationSource": "string"
-  }
+    "verificationSource": "string",
+    "businessType": "string"
+  }}
 ] 

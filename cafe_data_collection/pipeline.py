@@ -79,10 +79,19 @@ class CafePipeline:
         # Get cafe list from LLM
         cafes = await self.llm_client.get_cafes_for_city(city, cafes_needed)
         
-        # Add city info to each cafe
+        # Add city info to each cafe and ensure field names match template
         for cafe in cafes:
             cafe['city'] = city
             cafe['cityId'] = city_id
+            
+            # Convert briefDescription to excerpt if needed
+            if 'briefDescription' in cafe and 'excerpt' not in cafe:
+                cafe['excerpt'] = cafe.pop('briefDescription')
+            
+            # Ensure verification source exists
+            if 'verificationSource' not in cafe:
+                logger.warning(f"Missing verification source for cafe: {cafe['cafeName']}")
+                cafe['verificationSource'] = "Verification source not provided"
         
         # Save output for review
         output_file = self.pipeline_dir / f"step2_cafes_{city.replace(' ', '_').lower()}.json"

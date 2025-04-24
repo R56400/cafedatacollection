@@ -137,7 +137,16 @@ class LLMClient:
         )
         
         messages = [
-            {"role": "system", "content": "You are a knowledgeable coffee expert."},
+            {
+                "role": "system", 
+                "content": """You are a knowledgeable coffee expert who carefully verifies all information before providing it.
+                IMPORTANT: For each cafe you suggest:
+                1. You MUST verify it exists and is currently operating through recent reviews or business listings
+                2. You MUST include a verificationSource field explaining how you verified the cafe (e.g. "Verified via Yelp reviews from March 2025")
+                3. You MUST use exact names and addresses as they appear in official listings
+                4. You MUST NOT suggest cafes unless you can verify they exist and are operating
+                """
+            },
             {"role": "user", "content": prompt}
         ]
         
@@ -149,6 +158,14 @@ class LLMClient:
             cafes = json.loads(content)
             if not isinstance(cafes, list):
                 cafes = [cafes]  # Handle single cafe response
+                
+            # Validate required fields including verification source
+            required_fields = ['cafeName', 'cafeAddress', 'excerpt', 'verificationSource']
+            for cafe in cafes:
+                missing_fields = [field for field in required_fields if field not in cafe]
+                if missing_fields:
+                    logger.error(f"Missing required fields in cafe data: {missing_fields}")
+                    raise ValueError(f"Cafe data missing required fields: {missing_fields}")
                 
             # Cache the result
             cache_manager.save(
