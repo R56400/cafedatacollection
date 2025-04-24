@@ -2,6 +2,8 @@ import time
 import logging
 from typing import Dict, List, Optional
 from pathlib import Path
+import httpx
+import json
 
 from .utils.logging import setup_logger
 from .utils.caching import CacheManager
@@ -10,7 +12,11 @@ from .config import (
     RATE_LIMITS,
     CACHE_TTL,
     MAX_RETRIES,
-    RETRY_DELAY
+    RETRY_DELAY,
+    OPENAI_API_KEY,
+    OPENAI_MODEL,
+    OPENAI_TEMPERATURE,
+    OPENAI_MAX_TOKENS
 )
 
 logger = setup_logger(__name__)
@@ -22,6 +28,11 @@ class LLMClient:
         
         Note: Actual API client initialization will be added when API key is available.
         """
+        self.api_key = OPENAI_API_KEY
+        self.model = OPENAI_MODEL
+        self.temperature = OPENAI_TEMPERATURE
+        self.max_tokens = OPENAI_MAX_TOKENS
+        self.base_url = "https://api.openai.com/v1/chat/completions"
         self.last_request_time = 0
         self._load_prompt_templates()
     
@@ -63,6 +74,46 @@ class LLMClient:
         
         self.last_request_time = time.time()
     
+    async def _make_openai_request(self, messages: List[Dict]) -> Dict:
+        """Make a request to the OpenAI API.
+        
+        Args:
+            messages: List of message dictionaries for the conversation
+            
+        Returns:
+            The response from the API
+        """
+        if not self.api_key:
+            raise ValueError("OpenAI API key not configured")
+            
+        self._respect_rate_limit()
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens
+        }
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.base_url,
+                    headers=headers,
+                    json=data,
+                    timeout=30.0
+                )
+                response.raise_for_status()
+                return response.json()
+        except Exception as e:
+            logger.error(f"Error making OpenAI request: {e}")
+            raise
+
     async def get_cafes_for_city(self, city: str, count: int) -> List[Dict]:
         """Get a list of cafes for a given city.
         
@@ -78,11 +129,43 @@ class LLMClient:
         cached_result = cache_manager.load('api_responses', cache_key)
         if cached_result:
             return cached_result
+            
+        # Load and format the prompt
+        prompt = self.templates['cafe_search'].format(
+            city=city,
+            count=count
+        )
         
-        # TODO: Implement actual API call when OpenAI key is available
-        # For now, return empty list
-        logger.info(f"OpenAI API not configured yet - would fetch {count} cafes for {city}")
-        return []
+        messages = [
+            {"role": "system", "content": "You are a knowledgeable coffee expert."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        try:
+            response = await self._make_openai_request(messages)
+            content = response['choices'][0]['message']['content']
+            
+            # Parse the JSON response
+            cafes = json.loads(content)
+            if not isinstance(cafes, list):
+                cafes = [cafes]  # Handle single cafe response
+                
+            # Cache the result
+            cache_manager.save(
+                'api_responses',
+                cache_key,
+                cafes,
+                ttl=CACHE_TTL['api_responses']
+            )
+            
+            return cafes
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Error parsing OpenAI response for {city}: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Error getting cafes for {city}: {e}")
+            return []
     
     async def enrich_cafe_details(self, cafe_info: Dict) -> Dict:
         """Enrich basic cafe information with detailed content.

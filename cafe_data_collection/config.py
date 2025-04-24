@@ -12,10 +12,15 @@ OUTPUT_DIR = BASE_DIR / "output"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
 # API Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # To be configured later
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")  # To be configured later
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 CONTENTFUL_SPACE_ID = os.getenv("CONTENTFUL_SPACE_ID")
 CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
+
+# OpenAI Configuration
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4-turbo-preview")  # Default to GPT-4 Turbo
+OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))  # Default temperature
+OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
 RATE_LIMITS = {
