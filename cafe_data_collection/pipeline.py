@@ -76,38 +76,17 @@ class CafePipeline:
         """
         logger.info(f"Step 2: Getting cafes for {city} (need {cafes_needed})...")
         
-        # First get verified cafes from Google Places API
-        verified_cafes = await self.geocoding_client.get_verified_cafes(
-            city=city,
-            count=cafes_needed,
-            type="cafe"
-        )
+        # Get cafes directly from LLM
+        cafes = await self.llm_client.get_cafes_for_city(city, cafes_needed)
         
-        if not verified_cafes:
-            logger.error(f"No verified cafes found for {city}")
+        if not cafes:
+            logger.error(f"No cafes found for {city}")
             return {"cafes": [], "city": city}
         
-        # Now use LLM to enrich the verified cafe data
-        cafes = []
-        for cafe in verified_cafes:
-            try:
-                # Get additional details from LLM
-                enriched = await self.llm_client.get_cafe_details(
-                    name=cafe['name'],
-                    address=cafe['address'],
-                    place_id=cafe['place_id'],
-                    city=city
-                )
-                
-                # Add city info
-                enriched['city'] = city
-                enriched['cityId'] = city_id
-                
-                cafes.append(enriched)
-                
-            except Exception as e:
-                logger.error(f"Error enriching cafe {cafe.get('name', 'unknown')}: {e}")
-                continue
+        # Add city info to each cafe
+        for cafe in cafes:
+            cafe['city'] = city
+            cafe['cityId'] = city_id
         
         # Save output for review
         output_file = self.pipeline_dir / f"step2_cafes_{city.replace(' ', '_').lower()}.json"
