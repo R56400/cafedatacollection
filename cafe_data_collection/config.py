@@ -18,7 +18,7 @@ CONTENTFUL_SPACE_ID = os.getenv("CONTENTFUL_SPACE_ID")
 CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 
 # OpenAI Configuration
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4-turbo-preview")  # Default to GPT-4 Turbo
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-2025-04-14")  # Using GPT-4.1 2025 model
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))  # Default temperature
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))  # Default max tokens
 

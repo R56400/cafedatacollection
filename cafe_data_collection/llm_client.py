@@ -1,5 +1,6 @@
 import time
 import logging
+import os
 from typing import Dict, List, Optional
 from pathlib import Path
 import httpx
@@ -19,7 +20,10 @@ from .config import (
     OPENAI_MAX_TOKENS
 )
 
-logger = setup_logger(__name__)
+# Set logging to DEBUG level
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 cache_manager = CacheManager(CACHE_DIR)
 
 class LLMClient:
@@ -35,6 +39,17 @@ class LLMClient:
         self.base_url = "https://api.openai.com/v1/chat/completions"
         self.last_request_time = 0
         self._load_prompt_templates()
+        
+        if not self.api_key:
+            raise ValueError("OpenAI API key not found. Please set OPENAI_API_KEY in your .env file.")
+        
+        # Log initialization details (excluding API key)
+        logger.debug(f"Initialized LLMClient with:")
+        logger.debug(f"- Model: {self.model}")
+        logger.debug(f"- Temperature: {self.temperature}")
+        logger.debug(f"- Max tokens: {self.max_tokens}")
+        logger.debug(f"- Base URL: {self.base_url}")
+        logger.debug(f"- API key present: {'Yes' if self.api_key else 'No'}")
     
     def _load_prompt_templates(self) -> None:
         """Load prompt templates from the templates directory."""
@@ -74,115 +89,87 @@ class LLMClient:
         
         self.last_request_time = time.time()
     
-    async def _make_openai_request(self, messages: List[Dict]) -> Dict:
-        """Make a request to the OpenAI API.
-        
-        Args:
-            messages: List of message dictionaries for the conversation
-            
-        Returns:
-            The response from the API
-        """
-        if not self.api_key:
-            raise ValueError("OpenAI API key not configured")
-            
-        self._respect_rate_limit()
-        
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": self.temperature,
-            "max_tokens": self.max_tokens
-        }
-        
+    async def _make_openai_request(self, messages: List[Dict[str, str]]) -> Optional[str]:
         try:
+            logger.debug("Preparing OpenAI API request")
+            logger.debug(f"Request details: model={self.model}, temperature={self.temperature}, max_tokens={self.max_tokens}")
+            logger.debug(f"Messages to send: {json.dumps(messages, indent=2)}")
+            
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     self.base_url,
-                    headers=headers,
-                    json=data,
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "temperature": self.temperature,
+                        "max_tokens": self.max_tokens
+                    },
                     timeout=30.0
                 )
+                
+                logger.debug(f"Response status code: {response.status_code}")
+                
+                if response.status_code == 401:
+                    logger.error("OpenAI API key is invalid")
+                    raise ValueError("Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env")
+                
                 response.raise_for_status()
-                return response.json()
+                result = response.json()
+                logger.debug(f"Raw API response: {json.dumps(result, indent=2)}")
+                
+                if "choices" not in result or not result["choices"]:
+                    logger.error("No choices in API response")
+                    logger.debug(f"Full response: {json.dumps(result, indent=2)}")
+                    return None
+                    
+                logger.info("Successfully received response from OpenAI API")
+                return result["choices"][0]["message"]["content"]
+                
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error occurred: {str(e)}")
+            logger.debug(f"Response content: {e.response.text if hasattr(e, 'response') else 'No response content'}")
+            raise
+        except httpx.RequestError as e:
+            logger.error(f"Request error occurred: {str(e)}")
+            raise
         except Exception as e:
-            logger.error(f"Error making OpenAI request: {e}")
+            logger.error(f"Unexpected error occurred: {str(e)}")
+            logger.debug(f"Error type: {type(e).__name__}")
             raise
 
-    async def get_cafes_for_city(self, city: str, count: int) -> List[Dict]:
-        """Get a list of cafes for a given city.
-        
-        Args:
-            city: Name of the city
-            count: Number of cafes to retrieve
-        
-        Returns:
-            List of dictionaries containing basic cafe information
-        """
-        # Check cache first
-        cache_key = f"cafes_{city}_{count}"
-        cached_result = cache_manager.load('api_responses', cache_key)
-        if cached_result:
-            return cached_result
-            
-        # Load and format the prompt
-        prompt = self.templates['cafe_search'].format(
-            city=city,
-            count=count
-        )
-        
-        messages = [
-            {
-                "role": "system", 
-                "content": """You are a knowledgeable coffee expert who carefully verifies all information before providing it.
-                IMPORTANT: For each cafe you suggest:
-                1. You MUST verify it exists and is currently operating through recent reviews or business listings
-                2. You MUST include a verificationSource field explaining how you verified the cafe (e.g. "Verified via Yelp reviews from March 2025")
-                3. You MUST use exact names and addresses as they appear in official listings
-                4. You MUST NOT suggest cafes unless you can verify they exist and are operating
-                """
-            },
-            {"role": "user", "content": prompt}
-        ]
+    async def get_cafes_for_city(self, city: str, num_cafes: int = 5) -> List[Dict]:
+        logger.info(f"Getting {num_cafes} cafes for city: {city}")
         
         try:
+            with open("cafe_data_collection/templates/cafe_search.txt", "r") as f:
+                template = f.read()
+            
+            messages = [
+                {"role": "system", "content": template},
+                {"role": "user", "content": f"Find {num_cafes} cafes in {city}"}
+            ]
+            
             response = await self._make_openai_request(messages)
-            content = response['choices'][0]['message']['content']
+            if not response:
+                logger.error("No response received from OpenAI API")
+                return []
             
-            # Parse the JSON response
-            cafes = json.loads(content)
-            if not isinstance(cafes, list):
-                cafes = [cafes]  # Handle single cafe response
+            try:
+                cafes = json.loads(response)
+                logger.info(f"Successfully parsed {len(cafes)} cafes from response")
+                return cafes
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Raw response: {response}")
+                return []
                 
-            # Validate required fields including verification source
-            required_fields = ['cafeName', 'cafeAddress', 'excerpt', 'verificationSource']
-            for cafe in cafes:
-                missing_fields = [field for field in required_fields if field not in cafe]
-                if missing_fields:
-                    logger.error(f"Missing required fields in cafe data: {missing_fields}")
-                    raise ValueError(f"Cafe data missing required fields: {missing_fields}")
-                
-            # Cache the result
-            cache_manager.save(
-                'api_responses',
-                cache_key,
-                cafes,
-                ttl=CACHE_TTL['api_responses']
-            )
-            
-            return cafes
-            
-        except json.JSONDecodeError as e:
-            logger.error(f"Error parsing OpenAI response for {city}: {e}")
-            return []
         except Exception as e:
-            logger.error(f"Error getting cafes for {city}: {e}")
-            return []
+            logger.error(f"Error getting cafes for {city}: {str(e)}")
+            raise
     
     async def enrich_cafe_details(self, cafe_info: Dict) -> Dict:
         """Enrich basic cafe information with detailed content.

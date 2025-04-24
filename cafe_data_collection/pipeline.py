@@ -76,22 +76,38 @@ class CafePipeline:
         """
         logger.info(f"Step 2: Getting cafes for {city} (need {cafes_needed})...")
         
-        # Get cafe list from LLM
-        cafes = await self.llm_client.get_cafes_for_city(city, cafes_needed)
+        # First get verified cafes from Google Places API
+        verified_cafes = await self.geocoding_client.get_verified_cafes(
+            city=city,
+            count=cafes_needed,
+            type="cafe"
+        )
         
-        # Add city info to each cafe and ensure field names match template
-        for cafe in cafes:
-            cafe['city'] = city
-            cafe['cityId'] = city_id
-            
-            # Convert briefDescription to excerpt if needed
-            if 'briefDescription' in cafe and 'excerpt' not in cafe:
-                cafe['excerpt'] = cafe.pop('briefDescription')
-            
-            # Ensure verification source exists
-            if 'verificationSource' not in cafe:
-                logger.warning(f"Missing verification source for cafe: {cafe['cafeName']}")
-                cafe['verificationSource'] = "Verification source not provided"
+        if not verified_cafes:
+            logger.error(f"No verified cafes found for {city}")
+            return {"cafes": [], "city": city}
+        
+        # Now use LLM to enrich the verified cafe data
+        cafes = []
+        for cafe in verified_cafes:
+            try:
+                # Get additional details from LLM
+                enriched = await self.llm_client.get_cafe_details(
+                    name=cafe['name'],
+                    address=cafe['address'],
+                    place_id=cafe['place_id'],
+                    city=city
+                )
+                
+                # Add city info
+                enriched['city'] = city
+                enriched['cityId'] = city_id
+                
+                cafes.append(enriched)
+                
+            except Exception as e:
+                logger.error(f"Error enriching cafe {cafe.get('name', 'unknown')}: {e}")
+                continue
         
         # Save output for review
         output_file = self.pipeline_dir / f"step2_cafes_{city.replace(' ', '_').lower()}.json"
