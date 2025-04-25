@@ -11,7 +11,6 @@ from .data_collection import DataCollector
 from .llm_client import LLMClient
 from .geocoding import GeocodingClient
 from .contentful_export import ContentfulExporter
-from .excel_export import ExcelExporter
 from .schemas import CafeReview, Location, Rating, RichText, RichTextContent
 
 __all__ = [
@@ -19,7 +18,6 @@ __all__ = [
     "LLMClient",
     "GeocodingClient",
     "ContentfulExporter",
-    "ExcelExporter",
     "CafeReview",
     "Location",
     "Rating",

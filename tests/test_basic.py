@@ -10,8 +10,7 @@ from cafe_data_collection import (
     DataCollector,
     LLMClient,
     GeocodingClient,
-    ContentfulExporter,
-    ExcelExporter
+    ContentfulExporter
 )
 from cafe_data_collection.schemas import CafeReview
 
@@ -28,7 +27,6 @@ class TestBasicFunctionality(unittest.TestCase):
         self.assertIsNotNone(LLMClient)
         self.assertIsNotNone(GeocodingClient)
         self.assertIsNotNone(ContentfulExporter)
-        self.assertIsNotNone(ExcelExporter)
     
     def test_data_collector_initialization(self):
         """Test that DataCollector can be initialized with example files."""

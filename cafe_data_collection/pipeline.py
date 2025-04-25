@@ -10,7 +10,6 @@ from .data_collection import DataCollector
 from .llm_client import LLMClient
 from .geocoding import GeocodingClient
 from .contentful_export import ContentfulExporter
-from .excel_export import ExcelExporter
 from .config import (
     LOG_LEVEL,
     INPUT_ENCODING,
@@ -167,26 +166,8 @@ class CafePipeline:
         logger.info(f"Step 4 complete. Enriched cafes for {city} saved to {output_file}")
         return {"enriched_cafes": enriched_cafes, "city": city}
     
-    def step5_export_to_excel(self, all_cafes: List[Dict], output_path: Optional[str] = None) -> Dict:
-        """Step 5: Export all cafes to Excel format.
-        
-        Args:
-            all_cafes: List of all cafe dictionaries
-            output_path: Optional custom path for Excel output
-            
-        Returns:
-            Dictionary containing export result information
-        """
-        logger.info(f"Step 5: Exporting {len(all_cafes)} cafes to Excel...")
-        
-        excel_exporter = ExcelExporter()
-        excel_path = excel_exporter.export_reviews(all_cafes, output_path)
-        
-        logger.info(f"Step 5 complete. Excel export saved to {excel_path}")
-        return {"excel_path": excel_path}
-    
-    def step6_export_to_contentful(self, all_cafes: List[Dict], output_path: Optional[str] = None) -> Dict:
-        """Step 6: Export all cafes to Contentful format.
+    def step5_export_to_contentful(self, all_cafes: List[Dict], output_path: Optional[str] = None) -> Dict:
+        """Step 5: Export all cafes to Contentful format.
         
         Args:
             all_cafes: List of all cafe dictionaries
@@ -195,12 +176,12 @@ class CafePipeline:
         Returns:
             Dictionary containing export result information
         """
-        logger.info(f"Step 6: Exporting {len(all_cafes)} cafes to Contentful format...")
+        logger.info(f"Step 5: Exporting {len(all_cafes)} cafes to Contentful format...")
         
         contentful_exporter = ContentfulExporter()
         contentful_path = contentful_exporter.export_reviews(all_cafes, output_path)
         
-        logger.info(f"Step 6 complete. Contentful export saved to {contentful_path}")
+        logger.info(f"Step 5 complete. Contentful export saved to {contentful_path}")
         return {"contentful_path": contentful_path}
     
     def collect_all_cafe_files(self) -> List[Dict]:

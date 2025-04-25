@@ -100,17 +100,13 @@ async def main():
     parser.add_argument(
         "--step",
         type=int,
-        choices=range(1, 7),
-        help="Start from this step (1-6)"
+        choices=range(1, 6),
+        help="Start from this step (1-5)"
     )
     parser.add_argument(
         "--skip-confirmations",
         action="store_true",
         help="Skip user confirmations when running from a specific step"
-    )
-    parser.add_argument(
-        "--excel-output",
-        help="Path for Excel output file"
     )
     parser.add_argument(
         "--contentful-output",
@@ -166,22 +162,13 @@ async def main():
         all_cafes = pipeline.collect_all_cafe_files()
         print(f"\nLoaded {len(all_cafes)} cafes from existing files")
     
-    # Step 5: Export to Excel
+    # Step 5: Export to Contentful
     if step <= 5 and all_cafes:
-        if get_user_confirmation("Export data to Excel?", skip_confirmations):
-            result = pipeline.step5_export_to_excel(all_cafes, args.excel_output)
-            excel_path = result["excel_path"]
-            
-            print(f"\nStep 5 Complete: Exported {len(all_cafes)} cafes to Excel")
-            print(f"Review the output at: {excel_path}")
-    
-    # Step 6: Export to Contentful
-    if step <= 6 and all_cafes:
         if get_user_confirmation("Export data to Contentful format?", skip_confirmations):
-            result = pipeline.step6_export_to_contentful(all_cafes, args.contentful_output)
+            result = pipeline.step5_export_to_contentful(all_cafes, args.contentful_output)
             contentful_path = result["contentful_path"]
             
-            print(f"\nStep 6 Complete: Exported {len(all_cafes)} cafes to Contentful format")
+            print(f"\nStep 5 Complete: Exported {len(all_cafes)} cafes to Contentful format")
             print(f"Review the output at: {contentful_path}")
     
     print("\nPipeline execution complete!")

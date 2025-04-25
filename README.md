@@ -9,7 +9,7 @@ A Python system to collect, process, and store coffee shop data using Large Lang
 - Rich text content generation for cafe descriptions
 - Caching system to minimize API usage
 - Progress tracking and resume capability
-- Export to both Excel (for review) and Contentful format
+- Export to Contentful format
 - Rate limiting and error handling
 - Configurable logging
 
@@ -82,29 +82,21 @@ python -m cafe_data_collection input.csv city_mappings.json
 With optional arguments:
 ```bash
 python -m cafe_data_collection input.csv city_mappings.json \
-    --excel-output reviews.xlsx \
     --contentful-output export.json
 ```
 
 Available options:
-- `--no-excel`: Skip Excel export
 - `--no-contentful`: Skip Contentful export
-- `--excel-output PATH`: Specify Excel output path
 - `--contentful-output PATH`: Specify Contentful export path
 
 ## Output
 
-The script generates two types of output:
+The script generates Contentful JSON output:
 
-1. Excel file (default: `output/cafe_reviews_TIMESTAMP.xlsx`)
-   - Readable format for manual review
-   - All cafe details in tabular format
-   - Easy to edit and validate
-
-2. Contentful JSON (default: `output/contentful_export_TIMESTAMP.json`)
-   - Formatted for Contentful import
-   - Includes all required fields and references
-   - Rich text formatting
+- Contentful JSON (default: `output/contentful_export_TIMESTAMP.json`)
+  - Formatted for Contentful import
+  - Includes all required fields and references
+  - Rich text formatting
 
 ## Caching
 
@@ -127,7 +119,6 @@ cafe_data_collection/
 ├── data_collection.py   # Core collection logic
 ├── geocoding.py         # Google Maps integration
 ├── contentful_export.py # Contentful export
-├── excel_export.py      # Excel export
 ├── schemas.py           # Data models
 └── utils/
     ├── caching.py       # Caching system

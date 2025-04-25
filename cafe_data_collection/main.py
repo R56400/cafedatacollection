@@ -9,7 +9,6 @@ from .data_collection import DataCollector
 from .llm_client import LLMClient
 from .geocoding import GeocodingClient
 from .contentful_export import ContentfulExporter
-from .excel_export import ExcelExporter
 from .config import (
     LOG_LEVEL,
     INPUT_ENCODING
@@ -20,9 +19,7 @@ logger = setup_logger(__name__, level=getattr(logging, LOG_LEVEL))
 async def run_collection(
     input_csv: str,
     city_mapping_json: str,
-    export_excel: bool = True,
     export_contentful: bool = True,
-    excel_output: Optional[str] = None,
     contentful_output: Optional[str] = None
 ) -> None:
     """Run the cafe data collection process.
@@ -30,9 +27,7 @@ async def run_collection(
     Args:
         input_csv: Path to CSV file with city data
         city_mapping_json: Path to JSON file with city ID mappings
-        export_excel: Whether to export to Excel
         export_contentful: Whether to export to Contentful format
-        excel_output: Optional path for Excel output
         contentful_output: Optional path for Contentful output
     """
     try:
@@ -94,11 +89,6 @@ async def run_collection(
         
         # Export results
         if all_reviews:
-            if export_excel:
-                excel_exporter = ExcelExporter()
-                excel_path = excel_exporter.export_reviews(all_reviews, excel_output)
-                logger.info(f"Exported reviews to Excel: {excel_path}")
-            
             if export_contentful:
                 contentful_exporter = ContentfulExporter()
                 contentful_exporter.export_reviews(all_reviews, contentful_output)
@@ -123,20 +113,10 @@ def main():
         help="Path to JSON file containing city ID mappings"
     )
     parser.add_argument(
-        "--no-excel",
-        action="store_false",
-        dest="export_excel",
-        help="Skip Excel export"
-    )
-    parser.add_argument(
         "--no-contentful",
         action="store_false",
         dest="export_contentful",
         help="Skip Contentful export"
-    )
-    parser.add_argument(
-        "--excel-output",
-        help="Path for Excel output file"
     )
     parser.add_argument(
         "--contentful-output",
@@ -149,9 +129,7 @@ def main():
     asyncio.run(run_collection(
         args.input_csv,
         args.city_mapping_json,
-        args.export_excel,
         args.export_contentful,
-        args.excel_output,
         args.contentful_output
     ))
 
