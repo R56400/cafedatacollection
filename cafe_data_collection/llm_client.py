@@ -214,8 +214,30 @@ class LLMClient:
                 return cafe_info
                 
             try:
+                # Log the raw response for debugging
+                logger.debug(f"Raw response for {cafe_info['cafeName']}: {response}")
+                
                 # Parse the enriched details
                 enriched_details = json.loads(response)
+                
+                # Validate required fields
+                required_fields = [
+                    "overallScore", "coffeeScore", "foodScore", "vibeScore",
+                    "atmosphereScore", "serviceScore", "valueScore", "excerpt",
+                    "vibeDescription", "theStory", "craftExpertise", "setsApart"
+                ]
+                
+                missing_fields = [field for field in required_fields if field not in enriched_details]
+                if missing_fields:
+                    logger.error(f"Missing required fields for {cafe_info['cafeName']}: {missing_fields}")
+                    return cafe_info
+                
+                # Validate rich text fields
+                rich_text_fields = ["vibeDescription", "theStory", "craftExpertise", "setsApart"]
+                for field in rich_text_fields:
+                    if not isinstance(enriched_details[field], dict) or "nodeType" not in enriched_details[field]:
+                        logger.error(f"Invalid rich text format for {field} in {cafe_info['cafeName']}")
+                        return cafe_info
                 
                 # Merge the enriched details with the original cafe info
                 cafe_info.update(enriched_details)
@@ -226,12 +248,13 @@ class LLMClient:
                 return cafe_info
                 
             except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Failed to parse JSON response for {cafe_info['cafeName']}: {str(e)}")
                 logger.error(f"Raw response: {response}")
                 return cafe_info
                 
         except Exception as e:
             logger.error(f"Error enriching details for {cafe_info['cafeName']}: {str(e)}")
+            logger.error(f"Full error: {type(e).__name__}: {str(e)}")
             return cafe_info
     
     async def generate_rich_text(self, prompt: str, context: Dict) -> Dict:

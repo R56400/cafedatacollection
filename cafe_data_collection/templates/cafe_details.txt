@@ -3,47 +3,151 @@ You are a coffee expert and skilled writer creating detailed, engaging content a
 Brief Description: {briefDescription}
 Address: {cafeAddress}
 
-Please provide a comprehensive review of this cafe with the following elements:
+Please provide a comprehensive review of this cafe with the following elements, formatted EXACTLY as shown in the JSON structure below. Do not deviate from this structure or rename any fields:
 
-1. Ratings (on a scale of 0-10, except Vibe which is 1-10):
-- Overall Score: Consider all aspects
-- Coffee Score: Quality, variety, and execution
-- Food Score: Quality and selection of food offerings
-- Vibe Score (1-10 integer): Overall feeling and energy.
-- Atmosphere Score: Design, comfort, and ambiance
-- Service Score: Staff knowledge, friendliness, efficiency
-- Value Score: Price relative to quality and experience
--  Only in cases of extreme quality or exceptional quality should a cafe be given a 10. I'd expect only 1-3% of cafes to get a perfect 10. Even a rating of 9 communicates fantastic quality and should be used only when a cafe truely demonstrates something exceptional.
-
-2. A compelling excerpt (2-3 sentences) that captures the essence of the cafe
-
-3. Four distinct sections (3-5 sentences each):
-- Vibe Description: Paint a picture of the atmosphere and feeling
-- The Story: Share the cafe's background, inspiration, and significance
-- Craft & Expertise: Detail their coffee program and technical excellence
-- What Sets Them Apart: Highlight unique features and special qualities
-
-4. Additional Information:
-- Google Maps Place ID (required): Search for and provide the unique Google Maps Place ID for this cafe
-- Social Media Links (if available): Search for and provide the cafe's Instagram and Facebook profile URLs
-
-Format your response as a JSON object with the following structure:
 {
-  "overallScore": float,
-  "coffeeScore": float,
-  "foodScore": float,
-  "vibeScore": integer,
-  "atmosphereScore": float,
-  "serviceScore": float,
-  "valueScore": float,
-  "excerpt": "string",
-  "vibeDescription": { "nodeType": "document", "data": {}, "content": [...] },
-  "theStory": { "nodeType": "document", "data": {}, "content": [...] },
-  "craftExpertise": { "nodeType": "document", "data": {}, "content": [...] },
-  "setsApart": { "nodeType": "document", "data": {}, "content": [...] },
-  "placeId": "string",
-  "instagramLink": { "nodeType": "document", "data": {}, "content": [{ "nodeType": "hyperlink", "data": { "uri": "string" }, "content": [{ "nodeType": "text", "value": "Instagram", "marks": [], "data": {} }] }] },
-  "facebookLink": { "nodeType": "document", "data": {}, "content": [{ "nodeType": "hyperlink", "data": { "uri": "string" }, "content": [{ "nodeType": "text", "value": "Facebook", "marks": [], "data": {} }] }] }
+  "overallScore": 8.5,  // Float between 0-10, one decimal place
+  "coffeeScore": 9.0,   // Float between 0-10, one decimal place
+  "foodScore": 7.5,     // Float between 0-10, one decimal place
+  "vibeScore": 8,       // Integer between 1-10
+  "atmosphereScore": 8.5, // Float between 0-10, one decimal place
+  "serviceScore": 9.0,    // Float between 0-10, one decimal place
+  "valueScore": 8.0,      // Float between 0-10, one decimal place
+  "excerpt": "A compelling 2-3 sentence description that captures the cafe's essence",
+  "vibeDescription": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "paragraph",
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "Exactly 3 sentences about the spirit and atmosphere",
+            "marks": [],
+            "data": {}
+          }
+        ],
+        "data": {}
+      }
+    ]
+  },
+  "theStory": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "paragraph",
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "3-5 sentences about origins, founders, mission",
+            "marks": [],
+            "data": {}
+          }
+        ],
+        "data": {}
+      }
+    ]
+  },
+  "craftExpertise": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "paragraph",
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "Up to 5 sentences about coffee quality and expertise",
+            "marks": [],
+            "data": {}
+          }
+        ],
+        "data": {}
+      }
+    ]
+  },
+  "setsApart": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "paragraph",
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "3-4 sentences about unique features",
+            "marks": [],
+            "data": {}
+          }
+        ],
+        "data": {}
+      }
+    ]
+  },
+  "placeId": "GOOGLE_MAPS_PLACE_ID",  // Search for and provide the actual Google Maps Place ID
+  "instagramLink": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "hyperlink",
+        "data": {
+          "uri": "https://instagram.com/cafe_handle"  // Search for and provide the actual Instagram URL
+        },
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "Instagram",
+            "marks": [],
+            "data": {}
+          }
+        ]
+      }
+    ]
+  },
+  "facebookLink": {
+    "nodeType": "document",
+    "data": {},
+    "content": [
+      {
+        "nodeType": "hyperlink",
+        "data": {
+          "uri": "https://facebook.com/cafe_page"  // Search for and provide the actual Facebook URL
+        },
+        "content": [
+          {
+            "nodeType": "text",
+            "value": "Facebook",
+            "marks": [],
+            "data": {}
+          }
+        ]
+      }
+    ]
+  }
 }
 
-Ensure each narrative section is engaging, specific, and avoids generic descriptions. 
+Guidelines for content:
+1. Ratings (all scores except Vibe must have exactly one decimal place):
+   - Overall Score: Consider all aspects
+   - Coffee Score: Quality, variety, and execution
+   - Food Score: Quality and selection of food offerings
+   - Vibe Score (integer 1-10): Overall feeling and energy
+   - Atmosphere Score: Design, comfort, and ambiance
+   - Service Score: Staff knowledge, friendliness, efficiency
+   - Value Score: Price relative to quality and experience
+   Only in cases of extreme quality should a cafe be given a 10. Expect only 1-3% of cafes to get a perfect 10.
+
+2. Rich Text Sections:
+   - Vibe Description: Paint a picture of the atmosphere and feeling (exactly 3 sentences)
+   - The Story: Share background, inspiration, and significance (3-5 sentences)
+   - Craft & Expertise: Detail coffee program and excellence (up to 5 sentences)
+   - What Sets Them Apart: Highlight unique features (3-4 sentences)
+
+3. Additional Information:
+   - Google Maps Place ID: Search for and provide the actual ID
+   - Social Media: Search for and provide actual Instagram and Facebook URLs
+
+Your response must be a single JSON object exactly matching this structure. Do not include any other text or explanations. 
