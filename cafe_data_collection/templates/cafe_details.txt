@@ -23,4 +23,27 @@ Please provide a comprehensive review of this cafe with the following elements:
 - Craft & Expertise: Detail their coffee program and technical excellence
 - What Sets Them Apart: Highlight unique features and special qualities
 
-Format your response as a JSON object with clear sections. Ensure each narrative section is engaging, specific, and avoids generic descriptions. 
+4. Additional Information:
+- Google Maps Place ID (required): Search for and provide the unique Google Maps Place ID for this cafe
+- Social Media Links (if available): Search for and provide the cafe's Instagram and Facebook profile URLs
+
+Format your response as a JSON object with the following structure:
+{
+  "overallScore": float,
+  "coffeeScore": float,
+  "foodScore": float,
+  "vibeScore": integer,
+  "atmosphereScore": float,
+  "serviceScore": float,
+  "valueScore": float,
+  "excerpt": "string",
+  "vibeDescription": { "nodeType": "document", "data": {}, "content": [...] },
+  "theStory": { "nodeType": "document", "data": {}, "content": [...] },
+  "craftExpertise": { "nodeType": "document", "data": {}, "content": [...] },
+  "setsApart": { "nodeType": "document", "data": {}, "content": [...] },
+  "placeId": "string",
+  "instagramLink": { "nodeType": "document", "data": {}, "content": [{ "nodeType": "hyperlink", "data": { "uri": "string" }, "content": [{ "nodeType": "text", "value": "Instagram", "marks": [], "data": {} }] }] },
+  "facebookLink": { "nodeType": "document", "data": {}, "content": [{ "nodeType": "hyperlink", "data": { "uri": "string" }, "content": [{ "nodeType": "text", "value": "Facebook", "marks": [], "data": {} }] }] }
+}
+
+Ensure each narrative section is engaging, specific, and avoids generic descriptions. 
