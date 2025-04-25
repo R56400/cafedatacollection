@@ -197,14 +197,14 @@ class LLMClient:
             system_content = template.format(
                 cafeName=cafe_info['cafeName'],
                 city=cafe_info['city'],
-                briefDescription=cafe_info['excerpt'],
+                briefDescription=cafe_info.get('excerpt', ''),
                 cafeAddress=cafe_info['cafeAddress']
             )
             
             # Prepare messages for the API call
             messages = [
                 {"role": "system", "content": system_content},
-                {"role": "user", "content": f"Please provide detailed information about {cafe_info['cafeName']}"}
+                {"role": "user", "content": f"Please provide a detailed review of {cafe_info['cafeName']} in {cafe_info['city']}. Your response must be a SINGLE FLAT JSON OBJECT with all fields at the root level - do NOT nest fields under 'data', 'ratings', or 'sections' objects. You MUST include ALL of the following fields at the root level:\n\n- overallScore (float between 0-10)\n- coffeeScore (float between 0-10)\n- foodScore (float between 0-10)\n- vibeScore (integer between 1-10)\n- atmosphereScore (float between 0-10)\n- serviceScore (float between 0-10)\n- valueScore (float between 0-10)\n- excerpt (2-3 sentences)\n- vibeDescription (rich text object)\n- theStory (rich text object)\n- craftExpertise (rich text object)\n- setsApart (rich text object)\n\nDo not wrap the response in ```json``` tags or add any other text. Follow the exact structure shown in the template."}
             ]
             
             # Make the API call
@@ -215,11 +215,120 @@ class LLMClient:
                 
             try:
                 # Log the raw response for debugging
-                logger.debug(f"Raw response for {cafe_info['cafeName']}: {response}")
+                logger.debug(f"Raw response for {cafe_info['cafeName']} before cleaning: {response}")
+                
+                # Try to clean the response string
+                cleaned_response = response.strip()
+                if cleaned_response.startswith('```json'):
+                    cleaned_response = cleaned_response[7:]
+                if cleaned_response.endswith('```'):
+                    cleaned_response = cleaned_response[:-3]
+                cleaned_response = cleaned_response.strip()
+                
+                # Additional cleaning to handle extra whitespace and newlines
+                cleaned_response = ''.join(line.strip() for line in cleaned_response.splitlines())
+                
+                logger.debug(f"Cleaned response for {cafe_info['cafeName']}: {cleaned_response}")
                 
                 # Parse the enriched details
-                enriched_details = json.loads(response)
+                try:
+                    enriched_details = json.loads(cleaned_response)
+                    
+                    # Clean dictionary keys recursively
+                    def clean_dict_keys(d):
+                        if not isinstance(d, dict):
+                            return d
+                        return {k.strip(): clean_dict_keys(v) for k, v in d.items()}
+                    
+                    enriched_details = clean_dict_keys(enriched_details)
+                    
+                    # Check for nested structures early
+                    if any(key in enriched_details for key in ['data', 'ratings', 'sections']):
+                        logger.warning(f"LLM returned nested structure for {cafe_info['cafeName']}. Converting to flat structure...")
+                    
+                    # If response is wrapped in a data object, extract it
+                    if isinstance(enriched_details, dict) and 'data' in enriched_details:
+                        # Store metadata separately if needed
+                        metadata = {
+                            'verificationSource': enriched_details['data'].get('verificationSource'),
+                            'businessType': enriched_details['data'].get('businessType'),
+                            'cityId': enriched_details['data'].get('cityId'),
+                            'latitude': enriched_details['data'].get('latitude'),
+                            'longitude': enriched_details['data'].get('longitude')
+                        }
+                        # Store metadata in cafe_info under a metadata key
+                        cafe_info['metadata'] = {k: v for k, v in metadata.items() if v is not None}
+                        
+                        # Extract the main data
+                        enriched_details = enriched_details['data']
+                except json.JSONDecodeError as je:
+                    logger.error(f"JSON parsing error for {cafe_info['cafeName']}: {str(je)}")
+                    logger.error(f"Error location: around character {je.pos}")
+                    logger.error(f"Problematic document: {cleaned_response[:je.pos]}>>>HERE>>>{cleaned_response[je.pos:]}")
+                    return cafe_info
                 
+                # Convert nested ratings to root level with camelCase if needed
+                if 'ratings' in enriched_details:
+                    ratings_map = {
+                        'overall_score': 'overallScore',
+                        'coffee_score': 'coffeeScore',
+                        'food_score': 'foodScore',
+                        'vibe_score': 'vibeScore',
+                        'atmosphere_score': 'atmosphereScore',
+                        'service_score': 'serviceScore',
+                        'value_score': 'valueScore'
+                    }
+                    for old_key, new_key in ratings_map.items():
+                        if old_key in enriched_details.get('ratings', {}):
+                            enriched_details[new_key] = enriched_details['ratings'][old_key]
+                    enriched_details.pop('ratings', None)
+
+                # Convert nested sections to root level with camelCase if needed
+                if 'sections' in enriched_details:
+                    sections_map = {
+                        'vibe_description': 'vibeDescription',
+                        'the_story': 'theStory',
+                        'craft_and_expertise': 'craftExpertise',
+                        'what_sets_them_apart': 'setsApart'
+                    }
+                    for old_key, new_key in sections_map.items():
+                        if old_key in enriched_details.get('sections', {}):
+                            # Convert simple text to rich text format
+                            text_value = enriched_details['sections'][old_key]
+                            enriched_details[new_key] = {
+                                "nodeType": "document",
+                                "data": {},
+                                "content": [
+                                    {
+                                        "nodeType": "paragraph",
+                                        "content": [
+                                            {
+                                                "nodeType": "text",
+                                                "value": text_value,
+                                                "marks": [],
+                                                "data": {}
+                                            }
+                                        ],
+                                        "data": {}
+                                    }
+                                ]
+                            }
+                    enriched_details.pop('sections', None)
+
+                # Remove timestamp and ttl if they exist at root level
+                enriched_details.pop('timestamp', None)
+                enriched_details.pop('ttl', None)
+
+                # Handle any remaining snake_case to camelCase conversions
+                def to_camel_case(snake_str):
+                    components = snake_str.split('_')
+                    return components[0] + ''.join(x.title() for x in components[1:])
+
+                keys_to_convert = [k for k in enriched_details.keys() if '_' in k]
+                for key in keys_to_convert:
+                    camel_key = to_camel_case(key)
+                    enriched_details[camel_key] = enriched_details.pop(key)
+
                 # Validate required fields
                 required_fields = [
                     "overallScore", "coffeeScore", "foodScore", "vibeScore",
@@ -249,9 +358,9 @@ class LLMClient:
                 
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON response for {cafe_info['cafeName']}: {str(e)}")
-                logger.error(f"Raw response: {response}")
+                logger.error(f"Raw response: {cleaned_response}")
                 return cafe_info
-                
+            
         except Exception as e:
             logger.error(f"Error enriching details for {cafe_info['cafeName']}: {str(e)}")
             logger.error(f"Full error: {type(e).__name__}: {str(e)}")

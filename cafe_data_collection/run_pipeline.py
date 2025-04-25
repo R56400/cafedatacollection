@@ -12,15 +12,20 @@ from .config import LOG_LEVEL
 
 logger = setup_logger(__name__, level=LOG_LEVEL)
 
-def get_user_confirmation(message: str = "Continue to the next step?") -> bool:
+def get_user_confirmation(message: str = "Continue to the next step?", skip_confirmations: bool = False) -> bool:
     """Get confirmation from user to continue.
     
     Args:
         message: Message to display to user
+        skip_confirmations: Whether to skip confirmations and return True
     
     Returns:
-        True if user confirms, False otherwise
+        True if user confirms or skip_confirmations is True, False otherwise
     """
+    if skip_confirmations:
+        logger.info(f"{message} (Automatically confirmed)")
+        return True
+        
     while True:
         response = input(f"\n{message} (y/n): ").lower().strip()
         if response in ["y", "yes"]:
@@ -30,12 +35,13 @@ def get_user_confirmation(message: str = "Continue to the next step?") -> bool:
         else:
             print("Please enter 'y' or 'n'.")
 
-async def run_city_pipeline(pipeline: CafePipeline, city_info: Dict) -> List[Dict]:
+async def run_city_pipeline(pipeline: CafePipeline, city_info: Dict, skip_confirmations: bool = False) -> List[Dict]:
     """Run the pipeline for a single city.
     
     Args:
         pipeline: Initialized CafePipeline instance
         city_info: City information dictionary
+        skip_confirmations: Whether to skip user confirmations
     
     Returns:
         List of enriched cafe dictionaries
@@ -51,7 +57,7 @@ async def run_city_pipeline(pipeline: CafePipeline, city_info: Dict) -> List[Dic
     print(f"\nStep 2 Complete: Retrieved {len(cafes)} cafes for {city}")
     print(f"Review the output at: {pipeline.pipeline_dir}/step2_cafes_{city.replace(' ', '_').lower()}.json")
     
-    if not get_user_confirmation("Continue to geocoding?"):
+    if not get_user_confirmation("Continue to geocoding?", skip_confirmations):
         logger.info("Pipeline stopped after Step 2")
         return []
     
@@ -62,7 +68,7 @@ async def run_city_pipeline(pipeline: CafePipeline, city_info: Dict) -> List[Dic
     print(f"\nStep 3 Complete: Geocoded {len(geocoded_cafes)} cafes in {city}")
     print(f"Review the output at: {pipeline.pipeline_dir}/step3_geocoded_{city.replace(' ', '_').lower()}.json")
     
-    if not get_user_confirmation("Continue to enrichment?"):
+    if not get_user_confirmation("Continue to enrichment?", skip_confirmations):
         logger.info("Pipeline stopped after Step 3")
         return []
     
@@ -98,6 +104,11 @@ async def main():
         help="Start from this step (1-6)"
     )
     parser.add_argument(
+        "--skip-confirmations",
+        action="store_true",
+        help="Skip user confirmations when running from a specific step"
+    )
+    parser.add_argument(
         "--excel-output",
         help="Path for Excel output file"
     )
@@ -111,6 +122,7 @@ async def main():
     # Initialize pipeline
     pipeline = CafePipeline(args.input_csv, args.city_mapping_json)
     step = args.step or 1
+    skip_confirmations = args.skip_confirmations
     
     # Step 1: Load input data and create collection queue
     if step <= 1:
@@ -120,7 +132,7 @@ async def main():
         print(f"\nStep 1 Complete: Loaded data for {len(collection_queue)} cities")
         print(f"Review the output at: {pipeline.pipeline_dir}/step1_city_queue.json")
         
-        if not get_user_confirmation("Continue to cafe retrieval?"):
+        if not get_user_confirmation("Continue to cafe retrieval?", skip_confirmations):
             logger.info("Pipeline stopped after Step 1")
             return
     else:
@@ -142,11 +154,11 @@ async def main():
         for city_info in collection_queue:
             print(f"\nProcessing city: {city_info['city']}")
             
-            enriched_cafes = await run_city_pipeline(pipeline, city_info)
+            enriched_cafes = await run_city_pipeline(pipeline, city_info, skip_confirmations)
             all_cafes.extend(enriched_cafes)
             
             if city_info != collection_queue[-1]:
-                if not get_user_confirmation("Continue to next city?"):
+                if not get_user_confirmation("Continue to next city?", skip_confirmations):
                     logger.info("Pipeline stopped before processing all cities")
                     break
     else:
@@ -156,7 +168,7 @@ async def main():
     
     # Step 5: Export to Excel
     if step <= 5 and all_cafes:
-        if get_user_confirmation("Export data to Excel?"):
+        if get_user_confirmation("Export data to Excel?", skip_confirmations):
             result = pipeline.step5_export_to_excel(all_cafes, args.excel_output)
             excel_path = result["excel_path"]
             
@@ -165,7 +177,7 @@ async def main():
     
     # Step 6: Export to Contentful
     if step <= 6 and all_cafes:
-        if get_user_confirmation("Export data to Contentful format?"):
+        if get_user_confirmation("Export data to Contentful format?", skip_confirmations):
             result = pipeline.step6_export_to_contentful(all_cafes, args.contentful_output)
             contentful_path = result["contentful_path"]
             

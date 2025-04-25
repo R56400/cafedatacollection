@@ -6,13 +6,13 @@ Address: {cafeAddress}
 Please provide a comprehensive review of this cafe with the following elements, formatted EXACTLY as shown in the JSON structure below. Do not deviate from this structure or rename any fields:
 
 {
-  "overallScore": 8.5,  // Float between 0-10, one decimal place
-  "coffeeScore": 9.0,   // Float between 0-10, one decimal place
-  "foodScore": 7.5,     // Float between 0-10, one decimal place
-  "vibeScore": 8,       // Integer between 1-10
-  "atmosphereScore": 8.5, // Float between 0-10, one decimal place
-  "serviceScore": 9.0,    // Float between 0-10, one decimal place
-  "valueScore": 8.0,      // Float between 0-10, one decimal place
+  "overallScore": 8.5,
+  "coffeeScore": 9.0,
+  "foodScore": 7.5,
+  "vibeScore": 8,
+  "atmosphereScore": 8.5,
+  "serviceScore": 9.0,
+  "valueScore": 8.0,
   "excerpt": "A compelling 2-3 sentence description that captures the cafe's essence",
   "vibeDescription": {
     "nodeType": "document",
@@ -86,7 +86,7 @@ Please provide a comprehensive review of this cafe with the following elements, 
       }
     ]
   },
-  "placeId": "GOOGLE_MAPS_PLACE_ID",  // Search for and provide the actual Google Maps Place ID
+  "placeId": "GOOGLE_MAPS_PLACE_ID",
   "instagramLink": {
     "nodeType": "document",
     "data": {},
@@ -94,7 +94,7 @@ Please provide a comprehensive review of this cafe with the following elements, 
       {
         "nodeType": "hyperlink",
         "data": {
-          "uri": "https://instagram.com/cafe_handle"  // Search for and provide the actual Instagram URL
+          "uri": "https://instagram.com/cafe_handle"
         },
         "content": [
           {
@@ -114,7 +114,7 @@ Please provide a comprehensive review of this cafe with the following elements, 
       {
         "nodeType": "hyperlink",
         "data": {
-          "uri": "https://facebook.com/cafe_page"  // Search for and provide the actual Facebook URL
+          "uri": "https://facebook.com/cafe_page"
         },
         "content": [
           {
@@ -130,14 +130,14 @@ Please provide a comprehensive review of this cafe with the following elements, 
 }
 
 Guidelines for content:
-1. Ratings (all scores except Vibe must have exactly one decimal place):
-   - Overall Score: Consider all aspects
-   - Coffee Score: Quality, variety, and execution
-   - Food Score: Quality and selection of food offerings
-   - Vibe Score (integer 1-10): Overall feeling and energy
-   - Atmosphere Score: Design, comfort, and ambiance
-   - Service Score: Staff knowledge, friendliness, efficiency
-   - Value Score: Price relative to quality and experience
+1. Ratings:
+   - Overall Score: Float between 0-10, one decimal place. Consider all aspects.
+   - Coffee Score: Float between 0-10, one decimal place. Quality, variety, and execution.
+   - Food Score: Float between 0-10, one decimal place. Quality and selection of food offerings.
+   - Vibe Score: Integer between 1-10. Overall feeling and energy.
+   - Atmosphere Score: Float between 0-10, one decimal place. Design, comfort, and ambiance.
+   - Service Score: Float between 0-10, one decimal place. Staff knowledge, friendliness, efficiency.
+   - Value Score: Float between 0-10, one decimal place. Price relative to quality and experience.
    Only in cases of extreme quality should a cafe be given a 10. Expect only 1-3% of cafes to get a perfect 10.
 
 2. Rich Text Sections:
@@ -150,4 +150,4 @@ Guidelines for content:
    - Google Maps Place ID: Search for and provide the actual ID
    - Social Media: Search for and provide actual Instagram and Facebook URLs
 
-Your response must be a single JSON object exactly matching this structure. Do not include any other text or explanations. 
+Your response must be a single JSON object exactly matching this structure. Do not include any other text or explanations.
