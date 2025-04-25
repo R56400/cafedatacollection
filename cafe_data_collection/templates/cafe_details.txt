@@ -9,10 +9,11 @@ Please provide a comprehensive review of this cafe with the following elements:
 - Overall Score: Consider all aspects
 - Coffee Score: Quality, variety, and execution
 - Food Score: Quality and selection of food offerings
-- Vibe Score (1-10 integer): Overall feeling and energy
+- Vibe Score (1-10 integer): Overall feeling and energy.
 - Atmosphere Score: Design, comfort, and ambiance
 - Service Score: Staff knowledge, friendliness, efficiency
 - Value Score: Price relative to quality and experience
+-  Only in cases of extreme quality or exceptional quality should a cafe be given a 10. I'd expect only 1-3% of cafes to get a perfect 10. Even a rating of 9 communicates fantastic quality and should be used only when a cafe truely demonstrates something exceptional.
 
 2. A compelling excerpt (2-3 sentences) that captures the essence of the cafe
 

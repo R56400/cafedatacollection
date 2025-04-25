@@ -185,11 +185,54 @@ class LLMClient:
         cached_result = cache_manager.load('api_responses', cache_key)
         if cached_result:
             return cached_result
-        
-        # TODO: Implement actual API call when OpenAI key is available
-        # For now, return input unchanged
-        logger.info(f"OpenAI API not configured yet - would enrich details for {cafe_info['cafeName']}")
-        return cafe_info
+            
+        try:
+            # Get the template
+            template = self.templates.get('cafe_details')
+            if not template:
+                logger.error("Cafe details template not found")
+                return cafe_info
+                
+            # Format the system message with cafe info
+            system_content = template.format(
+                cafeName=cafe_info['cafeName'],
+                city=cafe_info['city'],
+                briefDescription=cafe_info['excerpt'],
+                cafeAddress=cafe_info['cafeAddress']
+            )
+            
+            # Prepare messages for the API call
+            messages = [
+                {"role": "system", "content": system_content},
+                {"role": "user", "content": f"Please provide detailed information about {cafe_info['cafeName']}"}
+            ]
+            
+            # Make the API call
+            response = await self._make_openai_request(messages)
+            if not response:
+                logger.error("No response received from OpenAI API")
+                return cafe_info
+                
+            try:
+                # Parse the enriched details
+                enriched_details = json.loads(response)
+                
+                # Merge the enriched details with the original cafe info
+                cafe_info.update(enriched_details)
+                
+                # Cache the result
+                cache_manager.save('api_responses', cache_key, cafe_info)
+                
+                return cafe_info
+                
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Raw response: {response}")
+                return cafe_info
+                
+        except Exception as e:
+            logger.error(f"Error enriching details for {cafe_info['cafeName']}: {str(e)}")
+            return cafe_info
     
     async def generate_rich_text(self, prompt: str, context: Dict) -> Dict:
         """Generate rich text content in Contentful format.
