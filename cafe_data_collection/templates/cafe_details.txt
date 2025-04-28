@@ -3,136 +3,32 @@ You are a coffee expert and skilled writer creating detailed, engaging content a
 Brief Description: {briefDescription}
 Address: {cafeAddress}
 
-Please provide a comprehensive review of this cafe with the following elements, formatted EXACTLY as shown in the JSON structure below. Do not deviate from this structure or rename any fields:
+
+
+======================================================================================================================================================
+
+TODO: Chris to revise everything below - the above is required based on usage in llm_client.py -> enrich_cafe_details() 
+
+for example, include all the spefic outputs for what i want the llm to fill in. i want the actual JSON structure that i want the LLM to give me.
+look at contentful for the structure, then replicate here.
+
+======================================================================================================================================================
+
+EXAMPLE JSON SCHEMA: 
 
 {
-  "overallScore": 8.5,
-  "coffeeScore": 9.0,
-  "foodScore": 7.5,
-  "vibeScore": 8,
-  "atmosphereScore": 8.5,
-  "serviceScore": 9.0,
-  "valueScore": 8.0,
-  "excerpt": "A compelling 2-3 sentence description that captures the cafe's essence",
-  "vibeDescription": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "paragraph",
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "Exactly 3 sentences about the spirit and atmosphere",
-            "marks": [],
-            "data": {}
-          }
-        ],
-        "data": {}
-      }
-    ]
-  },
-  "theStory": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "paragraph",
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "3-5 sentences about origins, founders, mission",
-            "marks": [],
-            "data": {}
-          }
-        ],
-        "data": {}
-      }
-    ]
-  },
-  "craftExpertise": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "paragraph",
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "Up to 5 sentences about coffee quality and expertise",
-            "marks": [],
-            "data": {}
-          }
-        ],
-        "data": {}
-      }
-    ]
-  },
-  "setsApart": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "paragraph",
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "3-4 sentences about unique features",
-            "marks": [],
-            "data": {}
-          }
-        ],
-        "data": {}
-      }
-    ]
-  },
-  "placeId": "GOOGLE_MAPS_PLACE_ID",
-  "instagramLink": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "hyperlink",
-        "data": {
-          "uri": "https://instagram.com/cafe_handle"
-        },
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "Instagram",
-            "marks": [],
-            "data": {}
-          }
-        ]
-      }
-    ]
-  },
-  "facebookLink": {
-    "nodeType": "document",
-    "data": {},
-    "content": [
-      {
-        "nodeType": "hyperlink",
-        "data": {
-          "uri": "https://facebook.com/cafe_page"
-        },
-        "content": [
-          {
-            "nodeType": "text",
-            "value": "Facebook",
-            "marks": [],
-            "data": {}
-          }
-        ]
-      }
-    ]
-  }
+  cafe_score: 9.0,
+  coffee_score: 8.0,
+  vibe_score: 8.0,
+  vibe_description: "this describes the vibe",
+  ... CHRIS TO FILL THIS IN ...
 }
+
 
 Guidelines for content:
 1. Ratings:
-   - Overall Score: Float between 0-10, one decimal place. Consider all aspects.
-   - Coffee Score: Float between 0-10, one decimal place. Quality, variety, and execution.
+   - cafe_score - Overall Score: Float between 0-10, one decimal place. Consider all aspects.
+   - coffee_score - Coffee Score: Float between 0-10, one decimal place. Quality, variety, and execution.
    - Food Score: Float between 0-10, one decimal place. Quality and selection of food offerings.
    - Vibe Score: Integer between 1-10. Overall feeling and energy.
    - Atmosphere Score: Float between 0-10, one decimal place. Design, comfort, and ambiance.
@@ -149,5 +45,49 @@ Guidelines for content:
 3. Additional Information:
    - Google Maps Place ID: Search for and provide the actual ID
    - Social Media: Search for and provide actual Instagram and Facebook URLs
+
+
+Section-Specific Guidelines:
+
+[Vibe Description]
+- Write exactly 3 sentences
+- Focus on the spirit and atmosphere of the place
+- Describe it as you would to friends
+- Avoid discussing coffee quality, food, or service details
+- Capture the emotional and social experience
+- DO NOT overlap with other content categories
+
+[The Story]
+- Write 3-5 sentences
+- Focus on the cafe's origins and mission
+- Include details about the founders
+- Highlight notable achievements or milestones
+- Discuss their broader vision and impact
+- DO NOT focus on coffee specifics
+
+[Craft & Expertise]
+- Write up to 5 sentences
+- Detail their coffee quality and preparation
+- Describe barista expertise and service
+- Highlight special or unique drinks
+- Discuss seating arrangements and drinkware
+- Focus on the complete food and drink experience
+
+[What Sets Them Apart]
+- Write 3-4 sentences
+- Highlight unique differentiators from other cafes
+- Discuss any special perspective on coffee or design
+- Focus on standout features or approaches
+- Emphasize what makes them memorable
+
+General Guidelines:
+- Be specific and avoid generic descriptions
+- Use vivid language that brings the subject to life
+- Maintain a professional but approachable tone
+- Each section should have its own distinct focus
+- Do not repeat information between sections
+
+Your response should be natural prose that will be converted to Contentful's rich text format. Do not include any formatting or markup in your response. 
+
 
 Your response must be a single JSON object exactly matching this structure. Do not include any other text or explanations.
