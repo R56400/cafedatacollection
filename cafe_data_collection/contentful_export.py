@@ -22,11 +22,11 @@ class ContentfulExporter:
         self.access_token = CONTENTFUL_ACCESS_TOKEN
         self.content_type_id = "cafeReview"  # Contentful content type ID
         
-    def format_cafe_review(self, review: CafeReview) -> Dict:
+    def format_cafe_review(self, review: Dict) -> Dict:
         """Format a cafe review into Contentful's expected structure.
         
         Args:
-            review: CafeReview instance to format
+            review: Dictionary containing cafe review data
         
         Returns:
             Dictionary formatted for Contentful import
@@ -54,89 +54,92 @@ class ContentfulExporter:
             },
             "fields": {
                 "cafeName": {
-                    "en-US": review.cafeName
+                    "en-US": review["cafeName"]
                 },
                 "authorName": {
-                    "en-US": review.authorName
+                    "en-US": review.get("authorName", "Cafe Data Collection")
                 },
                 "publishDate": {
-                    "en-US": review.publishDate.isoformat()
+                    "en-US": datetime.now().isoformat()
                 },
                 "slug": {
-                    "en-US": review.slug
+                    "en-US": review.get("slug", review["cafeName"].lower().replace(" ", "-"))
                 },
                 "excerpt": {
-                    "en-US": review.excerpt
+                    "en-US": review.get("excerpt", "")
                 },
                 "instagramLink": {
-                    "en-US": review.instagramLink.dict() if review.instagramLink else None
+                    "en-US": review.get("instagramLink", None)
                 },
                 "facebookLink": {
-                    "en-US": review.facebookLink.dict() if review.facebookLink else None
+                    "en-US": review.get("facebookLink", None)
                 },
                 "overallScore": {
-                    "en-US": review.overallScore
+                    "en-US": review.get("overallScore", 0)
                 },
                 "coffeeScore": {
-                    "en-US": review.coffeeScore
+                    "en-US": review.get("coffeeScore", 0)
                 },
                 "atmosphereScore": {
-                    "en-US": review.atmosphereScore
+                    "en-US": review.get("atmosphereScore", 0)
                 },
                 "serviceScore": {
-                    "en-US": review.serviceScore
+                    "en-US": review.get("serviceScore", 0)
                 },
                 "valueScore": {
-                    "en-US": review.valueScore
+                    "en-US": review.get("valueScore", 0)
                 },
                 "foodScore": {
-                    "en-US": review.foodScore
+                    "en-US": review.get("foodScore", 0)
                 },
                 "vibeScore": {
-                    "en-US": review.vibeScore
+                    "en-US": review.get("vibeScore", 0)
                 },
                 "vibeDescription": {
-                    "en-US": review.vibeDescription.dict()
+                    "en-US": review.get("vibeDescription", {})
                 },
                 "theStory": {
-                    "en-US": review.theStory.dict()
+                    "en-US": review.get("theStory", {})
                 },
                 "craftExpertise": {
-                    "en-US": review.craftExpertise.dict()
+                    "en-US": review.get("craftExpertise", {})
                 },
                 "setsApart": {
-                    "en-US": review.setsApart.dict()
+                    "en-US": review.get("setsApart", {})
                 },
                 "cafeAddress": {
-                    "en-US": review.cafeAddress
+                    "en-US": review.get("cafeAddress", "")
                 },
                 "cityReference": {
                     "en-US": {
                         "sys": {
                             "type": "Link",
                             "linkType": "Entry",
-                            "id": review.cityReference["id"]
+                            "id": review.get("cityId", "")
                         }
                     }
                 },
                 "cafeLatLon": {
                     "en-US": {
-                        "lat": review.cafeLatLon.lat,
-                        "lon": review.cafeLatLon.lon
-                    } if review.cafeLatLon else None
+                        "lat": review.get("latitude", 0),
+                        "lon": review.get("longitude", 0)
+                    } if "latitude" in review and "longitude" in review else None
                 },
                 "placeId": {
-                    "en-US": review.placeId
+                    "en-US": review.get("placeId", "")
                 }
             }
         }
     
-    def export_reviews(self, reviews: List[CafeReview], output_file: Optional[str] = None) -> None:
+    def export_reviews(self, reviews: List[Dict], output_file: Optional[str] = None) -> str:
         """Export cafe reviews to a file in Contentful format.
         
         Args:
-            reviews: List of CafeReview instances to export
+            reviews: List of cafe review dictionaries to export
             output_file: Optional output file path (default: contentful_export_{timestamp}.json)
+            
+        Returns:
+            Path to the output file
         """
         if not output_file:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -154,7 +157,7 @@ class ContentfulExporter:
                 formatted = self.format_cafe_review(review)
                 formatted_reviews.append(formatted)
             except Exception as e:
-                logger.error(f"Error formatting review for {review.cafeName}: {e}")
+                logger.error(f"Error formatting review for {review.get('cafeName', 'unknown cafe')}: {e}")
                 continue
         
         # Create the export structure
@@ -168,6 +171,7 @@ class ContentfulExporter:
             with open(output_file, 'w', encoding=INPUT_ENCODING) as f:
                 json.dump(export_data, f, indent=2)
             logger.info(f"Exported {len(formatted_reviews)} reviews to {output_file}")
+            return str(output_file)
         except Exception as e:
             logger.error(f"Error writing export file: {e}")
             raise 
