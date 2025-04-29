@@ -5,7 +5,7 @@ Adding new library dependencies:
    uv add <dependency name>
 
 
-Running the data collection program:
+Running the data collection program: (I can run this in ghostly whenever I want to get the full list of Cafes and it will give me the step prompt like normal from the line below)
 
    uv run main.py input/input.csv input/city_mappings.json
 

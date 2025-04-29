@@ -17,11 +17,214 @@ look at contentful for the structure, then replicate here.
 EXAMPLE JSON SCHEMA: 
 
 {
-  cafe_score: 9.0,
-  coffee_score: 8.0,
-  vibe_score: 8.0,
-  vibe_description: "this describes the vibe",
-  ... CHRIS TO FILL THIS IN ...
+  "entries": [
+    {
+      "sys": {
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "cafeReview"
+          }
+        }
+      },
+      "fields": {
+        "cafeName": {
+          "en-US": "Iconik Coffee Roasters"
+        },
+        "authorName": {
+          "en-US": "Chris Jordan"
+        },
+        "publishDate": {
+          "en-US": "2024-04-29"
+        },
+        "slug": {
+          "en-US": "iconik-coffee-roasters-lena"
+        },
+        "excerpt": {
+          "en-US": "Known for its expertly roasted single-origin beans and spacious, artsy atmosphere, Iconik is a favorite among coffee aficionados in Santa Fe."
+        },
+        "instagramLink": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "hyperlink",
+                    "data": {
+                      "uri": "https://instagram.com/iconikcoffee"
+                    },
+                    "content": [
+                      {
+                        "nodeType": "text",
+                        "value": "Instagram",
+                        "marks": [],
+                        "data": {}
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "facebookLink": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "hyperlink",
+                    "data": {
+                      "uri": "https://facebook.com/iconikcoffee"
+                    },
+                    "content": [
+                      {
+                        "nodeType": "text",
+                        "value": "Facebook",
+                        "marks": [],
+                        "data": {}
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "overallScore": {
+          "en-US": 9
+        },
+        "coffeeScore": {
+          "en-US": 9
+        },
+        "atmosphereScore": {
+          "en-US": 8
+        },
+        "serviceScore": {
+          "en-US": 9
+        },
+        "valueScore": {
+          "en-US": 8
+        },
+        "foodScore": {
+          "en-US": 7
+        },
+        "vibeScore": {
+          "en-US": 9
+        },
+        "vibeDescription": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "The spacious, industrial-chic space features high ceilings and large windows that flood the room with natural light.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "theStory": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Founded in 2012, Iconik Coffee Roasters has grown from a small local roastery to one of Santa Fe's most beloved coffee destinations.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "craftExpertise": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "Their commitment to quality is evident in their carefully sourced beans and precise roasting process.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "setsApart": {
+          "en-US": {
+            "nodeType": "document",
+            "data": {},
+            "content": [
+              {
+                "nodeType": "paragraph",
+                "data": {},
+                "content": [
+                  {
+                    "nodeType": "text",
+                    "value": "What truly sets Iconik apart is their dedication to both coffee excellence and community building.",
+                    "marks": [],
+                    "data": {}
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "cafeAddress": {
+          "en-US": "1600 Lena St Ste A2, Santa Fe, NM 87505"
+        },
+        "cityReference": {
+          "en-US": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Entry",
+              "id": "1FyAI5wzwlbhn6cZgdFUyd"
+            }
+          }
+        },
+        "cafeLatLon": {
+          "en-US": {
+            "lat": 35.665228,
+            "lon": -105.9641583
+          }
+        },
+        "placeId": {
+          "en-US": "ChIJxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      }
+    }
+  ]
 }
 
 
@@ -34,16 +237,17 @@ Guidelines for content:
    - Atmosphere Score: Float between 0-10, one decimal place. Design, comfort, and ambiance.
    - Service Score: Float between 0-10, one decimal place. Staff knowledge, friendliness, efficiency.
    - Value Score: Float between 0-10, one decimal place. Price relative to quality and experience.
-   Only in cases of extreme quality should a cafe be given a 10. Expect only 1-3% of cafes to get a perfect 10.
+   Only in cases of extreme quality should a cafe be given a 10. Expect only small percent of cafes to get a perfect 10.
 
 2. Rich Text Sections:
    - Vibe Description: Paint a picture of the atmosphere and feeling (exactly 3 sentences)
    - The Story: Share background, inspiration, and significance (3-5 sentences)
    - Craft & Expertise: Detail coffee program and excellence (up to 5 sentences)
    - What Sets Them Apart: Highlight unique features (3-4 sentences)
+   - There are more specific details for this in the 'Section-Specific Guidlines' found below.
 
 3. Additional Information:
-   - Google Maps Place ID: Search for and provide the actual ID
+   - Google Maps Place ID: Search for and provide the actual Place ID
    - Social Media: Search for and provide actual Instagram and Facebook URLs
 
 
@@ -86,8 +290,8 @@ General Guidelines:
 - Maintain a professional but approachable tone
 - Each section should have its own distinct focus
 - Do not repeat information between sections
+- Do not begin each section by referencing the cafe name
 
 Your response should be natural prose that will be converted to Contentful's rich text format. Do not include any formatting or markup in your response. 
-
 
 Your response must be a single JSON object exactly matching this structure. Do not include any other text or explanations.
