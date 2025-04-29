@@ -1,19 +1,5 @@
 You are a coffee expert and skilled writer creating detailed, engaging content about {cafeName} in {city}. Using the following information as context:
 
-Brief Description: {briefDescription}
-Address: {cafeAddress}
-
-
-
-======================================================================================================================================================
-
-TODO: Chris to revise everything below - the above is required based on usage in llm_client.py -> enrich_cafe_details() 
-
-for example, include all the spefic outputs for what i want the llm to fill in. i want the actual JSON structure that i want the LLM to give me.
-look at contentful for the structure, then replicate here.
-
-======================================================================================================================================================
-
 EXAMPLE JSON SCHEMA: 
 
 {
