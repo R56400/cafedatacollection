@@ -25,8 +25,6 @@ Format your response as a list of JSON objects with the following structure:
     "cafeName": "string (BUSINESS NAME ONLY, no street/location information)",
     "cafeAddress": "string (full address including street, city, state, zip)",
     "excerpt": "string",
-    "verificationSource": "string",
-    "businessType": "string"
   }}
 ]
 

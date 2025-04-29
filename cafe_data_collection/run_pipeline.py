@@ -101,7 +101,7 @@ async def main():
     )
     parser.add_argument("--city", help="Process only this specific city (optional)")
     parser.add_argument(
-        "--step", type=int, choices=range(1, 6), help="Start from this step (1-5)"
+        "--step", type=int, choices=range(1, 6), help="Start from this step (1-4)"
     )
     parser.add_argument(
         "--skip-confirmations",
@@ -164,20 +164,5 @@ async def main():
         # If starting from a later step, collect all existing enriched cafe files
         all_cafes = pipeline.collect_all_cafe_files()
         print(f"\nLoaded {len(all_cafes)} cafes from existing files")
-
-    # Step 5: Export to Contentful
-    if step <= 5 and all_cafes:
-        if get_user_confirmation(
-            "Export data to Contentful format?", skip_confirmations
-        ):
-            result = pipeline.step5_export_to_contentful(
-                all_cafes, args.contentful_output
-            )
-            contentful_path = result["contentful_path"]
-
-            print(
-                f"\nStep 5 Complete: Exported {len(all_cafes)} cafes to Contentful format"
-            )
-            print(f"Review the output at: {contentful_path}")
 
     print("\nPipeline execution complete!")
