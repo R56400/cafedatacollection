@@ -2,216 +2,216 @@ You are a coffee expert and skilled writer creating detailed, engaging content a
 
 EXAMPLE JSON SCHEMA: 
 
-{
+{{
   "entries": [
-    {
-      "sys": {
-        "contentType": {
-          "sys": {
+    {{
+      "sys": {{
+        "contentType": {{
+          "sys": {{
             "type": "Link",
             "linkType": "ContentType",
             "id": "cafeReview"
-          }
-        }
-      },
-      "fields": {
-        "cafeName": {
+          }}
+        }}
+      }},
+      "fields": {{
+        "cafeName": {{
           "en-US": "Iconik Coffee Roasters"
-        },
-        "authorName": {
+        }},
+        "authorName": {{
           "en-US": "Chris Jordan"
-        },
-        "publishDate": {
+        }},
+        "publishDate": {{
           "en-US": "2024-04-29"
-        },
-        "slug": {
+        }},
+        "slug": {{
           "en-US": "iconik-coffee-roasters-lena"
-        },
-        "excerpt": {
+        }},
+        "excerpt": {{
           "en-US": "Known for its expertly roasted single-origin beans and spacious, artsy atmosphere, Iconik is a favorite among coffee aficionados in Santa Fe."
-        },
-        "instagramLink": {
-          "en-US": {
+        }},
+        "instagramLink": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "hyperlink",
-                    "data": {
+                    "data": {{
                       "uri": "https://instagram.com/iconikcoffee"
-                    },
+                    }},
                     "content": [
-                      {
+                      {{
                         "nodeType": "text",
                         "value": "Instagram",
                         "marks": [],
-                        "data": {}
-                      }
+                        "data": {{}}
+                      }}
                     ]
-                  }
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "facebookLink": {
-          "en-US": {
+          }}
+        }},
+        "facebookLink": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "hyperlink",
-                    "data": {
+                    "data": {{
                       "uri": "https://facebook.com/iconikcoffee"
-                    },
+                    }},
                     "content": [
-                      {
+                      {{
                         "nodeType": "text",
                         "value": "Facebook",
                         "marks": [],
-                        "data": {}
-                      }
+                        "data": {{}}
+                      }}
                     ]
-                  }
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "overallScore": {
+          }}
+        }},
+        "overallScore": {{
           "en-US": 9
-        },
-        "coffeeScore": {
+        }},
+        "coffeeScore": {{
           "en-US": 9
-        },
-        "atmosphereScore": {
+        }},
+        "atmosphereScore": {{
           "en-US": 8
-        },
-        "serviceScore": {
+        }},
+        "serviceScore": {{
           "en-US": 9
-        },
-        "valueScore": {
+        }},
+        "valueScore": {{
           "en-US": 8
-        },
-        "foodScore": {
+        }},
+        "foodScore": {{
           "en-US": 7
-        },
-        "vibeScore": {
+        }},
+        "vibeScore": {{
           "en-US": 9
-        },
-        "vibeDescription": {
-          "en-US": {
+        }},
+        "vibeDescription": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "text",
                     "value": "The spacious, industrial-chic space features high ceilings and large windows that flood the room with natural light.",
                     "marks": [],
-                    "data": {}
-                  }
+                    "data": {{}}
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "theStory": {
-          "en-US": {
+          }}
+        }},
+        "theStory": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "text",
                     "value": "Founded in 2012, Iconik Coffee Roasters has grown from a small local roastery to one of Santa Fe's most beloved coffee destinations.",
                     "marks": [],
-                    "data": {}
-                  }
+                    "data": {{}}
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "craftExpertise": {
-          "en-US": {
+          }}
+        }},
+        "craftExpertise": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "text",
                     "value": "Their commitment to quality is evident in their carefully sourced beans and precise roasting process.",
                     "marks": [],
-                    "data": {}
-                  }
+                    "data": {{}}
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "setsApart": {
-          "en-US": {
+          }}
+        }},
+        "setsApart": {{
+          "en-US": {{
             "nodeType": "document",
-            "data": {},
+            "data": {{}},
             "content": [
-              {
+              {{
                 "nodeType": "paragraph",
-                "data": {},
+                "data": {{}},
                 "content": [
-                  {
+                  {{
                     "nodeType": "text",
                     "value": "What truly sets Iconik apart is their dedication to both coffee excellence and community building.",
                     "marks": [],
-                    "data": {}
-                  }
+                    "data": {{}}
+                  }}
                 ]
-              }
+              }}
             ]
-          }
-        },
-        "cafeAddress": {
+          }}
+        }},
+        "cafeAddress": {{
           "en-US": "1600 Lena St Ste A2, Santa Fe, NM 87505"
-        },
-        "cityReference": {
-          "en-US": {
-            "sys": {
+        }},
+        "cityReference": {{
+          "en-US": {{
+            "sys": {{
               "type": "Link",
               "linkType": "Entry",
               "id": "1FyAI5wzwlbhn6cZgdFUyd"
-            }
-          }
-        },
-        "cafeLatLon": {
-          "en-US": {
+            }}
+          }}
+        }},
+        "cafeLatLon": {{
+          "en-US": {{
             "lat": 35.665228,
             "lon": -105.9641583
-          }
-        },
-        "placeId": {
+          }}
+        }},
+        "placeId": {{
           "en-US": "ChIJxxxxxxxxxxxxxxxxxxxxxxxx"
-        }
-      }
-    }
+        }}
+      }}
+    }}
   ]
-}
+}}
 
 
 Guidelines for content:
