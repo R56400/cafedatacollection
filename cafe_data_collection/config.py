@@ -19,8 +19,9 @@ CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 
 # OpenAI Configuration
 OPENAI_MODEL = os.getenv(
-    "OPENAI_MODEL", "gpt-4.1-2025-04-14"
-)  # Using GPT-4.1 2025 model
+    "OPENAI_MODEL",
+    "gpt-4-turbo-preview",  # Using the latest GPT-4 Turbo model
+)
 OPENAI_TEMPERATURE = float(
     os.getenv("OPENAI_TEMPERATURE", "0.7")
 )  # Default temperature
@@ -34,7 +35,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 1  # Base delay in seconds for exponential backoff
 
 # Logging Configuration
-LOG_LEVEL = "INFO"
+LOG_LEVEL = "DEBUG"
 
 # Input/Output Configuration
 INPUT_ENCODING = "utf-8"
