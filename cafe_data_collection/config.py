@@ -20,7 +20,7 @@ CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 # OpenAI Configuration
 OPENAI_MODEL = os.getenv(
     "OPENAI_MODEL",
-    "gpt-4-turbo-preview",  # Using the latest GPT-4 Turbo model
+    "gpt-4.1-2025-04-14",  # Using the latest GPT-4 Turbo model
 )
 OPENAI_TEMPERATURE = float(
     os.getenv("OPENAI_TEMPERATURE", "0.7")
