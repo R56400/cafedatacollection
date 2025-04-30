@@ -233,8 +233,9 @@ Guidelines for content:
    - There are more specific details for this in the 'Section-Specific Guidlines' found below.
 
 3. Additional Information:
-   - Google Maps Place ID: Search for and provide the actual Place ID
+   - Google Maps Place ID aka placeID: Search for and provide the actual Place ID
    - Social Media: Search for and provide actual Instagram and Facebook URLs
+   - Please include the specific Latitude and Longitude coordinates of the cafe aka cafeLatLon
 
 
 Section-Specific Guidelines:
@@ -279,6 +280,7 @@ General Guidelines:
 - Do not begin each section by referencing the cafe name
 - When creating the slug field, the format should be cafe-name followed by the street name
 - You must match the example JSON format and not remove or add any new fields or change any field names
+- Do NOT use any individual names of people in the review. You may mention founders, but do not specifically say their names
 
 Your response should be natural prose that will be converted to Contentful's rich text format. Do not include any formatting or markup in your response. 
 
