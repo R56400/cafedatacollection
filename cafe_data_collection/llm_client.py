@@ -1,19 +1,84 @@
+import asyncio
 import json
 import time
 from pathlib import Path
+from typing import List
 
 import httpx
 
 from .config import (
+    MAX_RETRIES,
     OPENAI_API_KEY,
     OPENAI_MAX_TOKENS,
     OPENAI_MODEL,
     OPENAI_TEMPERATURE,
     RATE_LIMITS,
+    RETRY_DELAY,
+)
+from .schema import (
+    ContentfulCafeReviewPayload,
+    ContentType,
+    ContentTypeSys,
+    Entry,
+    EntrySys,
+    Fields,
 )
 from .utils.logging import setup_logger
 
 logger = setup_logger(__name__)
+
+
+def _build_enrichment_prompt_from_schema() -> str:
+    """Build the enrichment prompt dynamically from the Fields schema."""
+    # Get the schema from the Fields model
+    schema = Fields.schema()
+
+    # Extract field descriptions and requirements
+    field_info = []
+    for field_name, field in schema["properties"].items():
+        if "description" in field:
+            field_info.append(f"- {field_name}: {field['description']}")
+
+    return (
+        "You are a coffee expert creating a detailed review. Your response MUST be a valid JSON object with the following structure:\n\n"
+        "{\n"
+        '  "entries": [{\n'
+        '    "sys": {\n'
+        '      "contentType": {\n'
+        '        "sys": {\n'
+        '          "type": "Link",\n'
+        '          "linkType": "ContentType",\n'
+        '          "id": "cafeReview"\n'
+        "        }\n"
+        "      }\n"
+        "    },\n"
+        '    "fields": {\n'
+        '      // All fields below must be wrapped in {"en-US": value}\n'
+        '      // Example: "cafeName": {"en-US": "Coffee Shop Name"}\n'
+        "    }\n"
+        "  }]\n"
+        "}\n\n"
+        "IMPORTANT: The response MUST:\n"
+        "1. Include the complete 'entries' wrapper and 'sys' object exactly as shown above\n"
+        "2. Wrap ALL field values in {'en-US': value}\n"
+        "3. Follow the specific format requirements for each field type\n\n"
+        "Each field must follow these requirements:\n\n"
+        + "\n".join(field_info)
+        + "\n\nIMPORTANT FIELD FORMATS:\n\n"
+        "1. Social media links (instagramLink and facebookLink) must be in this format:\n"
+        '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "ACTUAL_URL"}, "content": [{"nodeType": "text", "value": "PLATFORM_NAME", "marks": [], "data": {}}]}]}]}}\n\n'
+        "2. City reference must be in this format:\n"
+        '{"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_ID"}}}\n\n'
+        "3. Rich text fields (like vibeDescription, theStory, etc.) must be in this format:\n"
+        '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "Your text here", "marks": [], "data": {}}]}]}}\n\n'
+        "4. Numeric scores must be wrapped in en-US:\n"
+        '{"en-US": 8.5}\n\n'
+        "IMPORTANT SCORE FORMATS:\n"
+        "- vibeScore must be an integer between 1-10 (no decimals). Example: {'en-US': 8}\n"
+        "- All other scores (overallScore, coffeeScore, atmosphereScore, etc.) should be floats with one decimal place. Example: {'en-US': 8.5}\n\n"
+        "5. Coordinates must be wrapped in en-US:\n"
+        '{"en-US": {"lat": 35.6813, "lon": -105.9787}}\n\n'
+    )
 
 
 class LLMClient:
@@ -34,9 +99,8 @@ class LLMClient:
                 "OpenAI API key not found. Please set OPENAI_API_KEY in your .env file."
             )
 
-        # Load templates
+        # Load only the cafe search template
         self.cafe_search_template = self._load_template("cafe_search.txt")
-        self.cafe_details_template = self._load_template("cafe_details.txt")
 
         logger.debug("Initialized LLMClient with:")
         logger.debug(f"- Model: {self.model}")
@@ -67,55 +131,72 @@ class LLMClient:
         self.last_request_time = time.time()
 
     async def _make_openai_request(self, messages: list[dict[str, str]]) -> str | None:
-        try:
-            logger.debug("Preparing OpenAI API request")
-            logger.debug(
-                f"Request details: model={self.model}, temperature={self.temperature}, max_tokens={self.max_tokens}"
-            )
-            logger.debug(f"Messages to send: {json.dumps(messages, indent=2)}")
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    self.base_url,
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "temperature": self.temperature,
-                        "max_tokens": self.max_tokens,
-                    },
-                    timeout=30.0,
+        retries = 0
+        while retries < MAX_RETRIES:
+            try:
+                logger.debug("Preparing OpenAI API request")
+                logger.debug(
+                    f"Request details: model={self.model}, temperature={self.temperature}, max_tokens={self.max_tokens}"
                 )
+                logger.debug(f"Messages to send: {json.dumps(messages, indent=2)}")
 
-                logger.debug(f"Response status code: {response.status_code}")
+                # Respect rate limits before making request
+                self._respect_rate_limit()
 
-                if response.status_code == 401:
-                    logger.error("OpenAI API key is invalid")
-                    raise ValueError(
-                        "Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env"
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        self.base_url,
+                        headers={
+                            "Authorization": f"Bearer {self.api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": self.model,
+                            "messages": messages,
+                            "temperature": self.temperature,
+                            "max_tokens": self.max_tokens,
+                        },
+                        timeout=30.0,
                     )
 
-                response.raise_for_status()
-                result = response.json()
-                logger.debug(f"Raw API response: {json.dumps(result, indent=2)}")
+                    logger.debug(f"Response status code: {response.status_code}")
 
-                if "choices" not in result or not result["choices"]:
-                    logger.error("No choices in API response")
-                    logger.debug(f"Full response: {json.dumps(result, indent=2)}")
-                    return None
+                    if response.status_code == 401:
+                        logger.error("OpenAI API key is invalid")
+                        raise ValueError(
+                            "Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env"
+                        )
 
-                logger.info("Successfully received response from OpenAI API")
-                return result["choices"][0]["message"]["content"]
+                    response.raise_for_status()
+                    result = response.json()
+                    logger.debug(f"Raw API response: {json.dumps(result, indent=2)}")
 
-        except Exception as e:
-            logger.error(f"Unexpected error occurred: {str(e)}")
-            logger.debug(f"Error type: {type(e).__name__}")
-            raise
+                    if "choices" not in result or not result["choices"]:
+                        logger.error("No choices in API response")
+                        logger.debug(f"Full response: {json.dumps(result, indent=2)}")
+                        return None
 
-    async def get_cafes_for_city(self, city: str, num_cafes: int = 5) -> list[dict]:
+                    logger.info("Successfully received response from OpenAI API")
+                    return result["choices"][0]["message"]["content"]
+
+            except (httpx.ReadTimeout, httpx.ConnectTimeout) as e:
+                retries += 1
+                if retries == MAX_RETRIES:
+                    logger.error(
+                        f"Max retries ({MAX_RETRIES}) reached. Last error: {str(e)}"
+                    )
+                    raise
+                wait_time = RETRY_DELAY * (2 ** (retries - 1))  # Exponential backoff
+                logger.warning(
+                    f"Request timed out. Retrying in {wait_time} seconds... (Attempt {retries + 1}/{MAX_RETRIES})"
+                )
+                await asyncio.sleep(wait_time)
+            except Exception as e:
+                logger.error(f"Unexpected error occurred: {str(e)}")
+                logger.debug(f"Error type: {type(e).__name__}")
+                raise
+
+    async def get_cafes_for_city(self, city: str, num_cafes: int = 5) -> List[dict]:
         logger.info(f"Getting {num_cafes} cafes for city: {city}")
 
         try:
@@ -131,8 +212,25 @@ class LLMClient:
 
             try:
                 cafes = json.loads(response)
-                logger.info(f"Successfully parsed {len(cafes)} cafes from response")
-                return cafes
+                # Basic validation of required fields
+                validated_cafes = []
+                for cafe in cafes:
+                    if all(
+                        key in cafe
+                        for key in [
+                            "cafeName",
+                            "cafeAddress",
+                            "city",
+                            "excerpt",
+                        ]
+                    ):
+                        validated_cafes.append(cafe)
+                    else:
+                        logger.warning(f"Cafe missing required fields: {cafe}")
+                logger.info(
+                    f"Successfully parsed and validated {len(validated_cafes)} cafes from response"
+                )
+                return validated_cafes
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON response: {str(e)}")
                 logger.error(f"Raw response: {response}")
@@ -142,72 +240,148 @@ class LLMClient:
             logger.error(f"Error getting cafes for {city}: {str(e)}")
             raise
 
-    async def enrich_cafe_details(self, cafe_info: dict) -> dict:
+    async def enrich_cafe_details(self, cafe_info: dict) -> ContentfulCafeReviewPayload:
         """Enrich basic cafe information with detailed content.
 
         Args:
             cafe_info: Dictionary containing basic cafe information
 
         Returns:
-            Dictionary containing enriched cafe information
+            ContentfulCafeReviewPayload object containing enriched cafe information matching the Contentful structure
         """
-        system_content = self.cafe_details_template.format(
-            cafeName=cafe_info["cafeName"],
-            city=cafe_info["city"],
-            briefDescription=cafe_info.get("excerpt", ""),
-            cafeAddress=cafe_info["cafeAddress"],
-        )
+        # Build the prompt from the schema
+        enrichment_requirements = _build_enrichment_prompt_from_schema()
 
         # Prepare messages for the API call
         messages = [
-            {"role": "system", "content": system_content},
+            {
+                "role": "system",
+                "content": "You are a coffee expert creating detailed, engaging content about cafes. Focus on accuracy and specificity in your reviews.",
+            },
             {
                 "role": "user",
-                "content": f"Please provide a detailed review of {cafe_info['cafeName']} in {cafe_info['city']}. Your response must be a SINGLE FLAT JSON OBJECT with all fields at the root level - do NOT nest fields under 'data', 'ratings', or 'sections' objects. You MUST include ALL of the following fields at the root level:\n\n- overallScore (float between 0-10)\n- coffeeScore (float between 0-10)\n- foodScore (float between 0-10)\n- vibeScore (integer between 1-10)\n- atmosphereScore (float between 0-10)\n- serviceScore (float between 0-10)\n- valueScore (float between 0-10)\n- excerpt (2-3 sentences)\n- vibeDescription (rich text object)\n- theStory (rich text object)\n- craftExpertise (rich text object)\n- setsApart (rich text object)\n\nDo not wrap the response in ```json``` tags or add any other text. Follow the exact structure shown in the template.",
+                "content": (
+                    f"Create a detailed review for {cafe_info['cafeName']} in {cafe_info['city']}.\n"
+                    f"Brief description: {cafe_info.get('excerpt', '')}\n"
+                    f"Address: {cafe_info['cafeAddress']}\n"
+                    f"City ID for reference: {cafe_info['cityId']}\n\n"
+                    f"{enrichment_requirements}\n\n"
+                    "Provide the response as a single JSON object. Do not include any markdown formatting or additional text."
+                ),
             },
         ]
 
         # Make the API call
         response = await self._make_openai_request(messages)
 
-        # Generate enriched data
-        enriched_cafe = cafe_info.copy()
-
-        if response:
-            try:
-                # Try to clean the response string
-                cleaned_response = response.strip()
-                if cleaned_response.startswith("```json"):
-                    cleaned_response = cleaned_response[7:]
-                if cleaned_response.endswith("```"):
-                    cleaned_response = cleaned_response[:-3]
-                cleaned_response = cleaned_response.strip()
-
-                # Additional cleaning to handle extra whitespace and newlines
-                cleaned_response = "".join(
-                    line.strip() for line in cleaned_response.splitlines()
-                )
-
-                # Parse the enriched details
-                enriched_details = json.loads(cleaned_response)
-
-                # If we got here, parsing succeeded
-                enriched_cafe.update(enriched_details)
-
-            except json.JSONDecodeError as je:
-                logger.error(
-                    f"JSON parsing error for {cafe_info['cafeName']}: {str(je)}"
-                )
-                logger.error(f"Error location: around character {je.pos}")
-                logger.error(
-                    f"Problematic document: {cleaned_response[: je.pos]}>>>HERE>>>{cleaned_response[je.pos :]}"
-                )
-                # Will fall back to default values
-
-            except Exception as e:
-                logger.error(f"Unexpected error processing LLM response: {str(e)}")
-                # Will fall back to default values
-        else:
+        if not response:
             logger.error("No response received from OpenAI API")
+            raise ValueError("Failed to get response from OpenAI API")
 
-        return enriched_cafe
+        try:
+            # Parse the response as a complete ContentfulCafeReviewPayload
+            response_json = json.loads(response)
+
+            # Extract the fields from the first entry
+            fields = response_json["entries"][0]["fields"]
+
+            # Ensure proper structure for social media links and city reference
+            if "instagramLink" in fields and isinstance(
+                fields["instagramLink"].get("en-US"), str
+            ):
+                url = fields["instagramLink"]["en-US"]
+                fields["instagramLink"]["en-US"] = {
+                    "nodeType": "document",
+                    "data": {},
+                    "content": [
+                        {
+                            "nodeType": "paragraph",
+                            "data": {},
+                            "content": [
+                                {
+                                    "nodeType": "hyperlink",
+                                    "data": {"uri": url},
+                                    "content": [
+                                        {
+                                            "nodeType": "text",
+                                            "value": "Instagram",
+                                            "marks": [],
+                                            "data": {},
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+
+            if "facebookLink" in fields and isinstance(
+                fields["facebookLink"].get("en-US"), str
+            ):
+                url = fields["facebookLink"]["en-US"]
+                fields["facebookLink"]["en-US"] = {
+                    "nodeType": "document",
+                    "data": {},
+                    "content": [
+                        {
+                            "nodeType": "paragraph",
+                            "data": {},
+                            "content": [
+                                {
+                                    "nodeType": "hyperlink",
+                                    "data": {"uri": url},
+                                    "content": [
+                                        {
+                                            "nodeType": "text",
+                                            "value": "Facebook",
+                                            "marks": [],
+                                            "data": {},
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+
+            if "cityReference" in fields and isinstance(
+                fields["cityReference"].get("en-US"), str
+            ):
+                city_id = cafe_info["cityId"]
+                fields["cityReference"]["en-US"] = {
+                    "sys": {
+                        "type": "Link",
+                        "linkType": "Entry",
+                        "id": city_id,
+                    }
+                }
+
+            # Set the placeId from our geocoding data
+            fields["placeId"] = {"en-US": cafe_info["placeId"]}
+
+            # Set the coordinates from our geocoding data
+            fields["cafeLatLon"] = {
+                "en-US": {"lat": cafe_info["latitude"], "lon": cafe_info["longitude"]}
+            }
+
+            # Validate fields
+            validated_fields = Fields(**fields)
+
+            # Create the complete Entry object
+            entry = Entry(
+                sys=EntrySys(
+                    contentType=ContentType(
+                        sys=ContentTypeSys(
+                            type="Link", linkType="ContentType", id="cafeReview"
+                        )
+                    )
+                ),
+                fields=validated_fields,
+            )
+
+            # Create and return the complete payload
+            return ContentfulCafeReviewPayload(entries=[entry])
+
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.error(f"Failed to parse LLM response: {e}")
+            raise ValueError(f"Invalid response format from LLM: {e}")

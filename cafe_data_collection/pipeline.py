@@ -107,13 +107,15 @@ class CafePipeline:
         geocoded_cafes = []
         for cafe in cafes:
             try:
-                # Get coordinates
-                coordinates = await self.geocoding_client.get_coordinates(
+                # Get coordinates and place_id
+                geocoding_result = await self.geocoding_client.get_coordinates(
                     cafe["cafeAddress"], city
                 )
 
-                if coordinates:
+                if geocoding_result:
+                    coordinates, place_id = geocoding_result
                     cafe["latitude"], cafe["longitude"] = coordinates
+                    cafe["placeId"] = place_id
 
                 geocoded_cafes.append(cafe)
 
@@ -139,21 +141,28 @@ class CafePipeline:
     async def step4_enrich_cafe_details(self, cafes: list[dict], city: str) -> dict:
         logger.info(f"Step 4: Enriching {len(cafes)} cafes in {city}...")
 
-        enriched_cafes = [
-            await self.llm_client.enrich_cafe_details(cafe) for cafe in cafes
-        ]
+        enriched_entries = []
+        for cafe in cafes:
+            enriched_cafe = await self.llm_client.enrich_cafe_details(cafe)
+            # Extract the entry from the payload and add to our list
+            enriched_entries.extend(enriched_cafe.entries)
+
+        # Create a single payload with all entries
+        combined_payload = {
+            "entries": [entry.model_dump() for entry in enriched_entries]
+        }
 
         # Save output for review
         output_file = (
             self.pipeline_dir / f"step4_enriched_{city.replace(' ', '_').lower()}.json"
         )
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(enriched_cafes, f, indent=2)
+            json.dump(combined_payload, f, indent=2)
 
         logger.info(
             f"Step 4 complete. Enriched cafes for {city} saved to {output_file}"
         )
-        return {"enriched_cafes": enriched_cafes, "city": city}
+        return {"enriched_cafes": combined_payload, "city": city}
 
     def collect_all_cafe_files(self) -> list[dict]:
         """Helper method to collect all enriched cafe data files.

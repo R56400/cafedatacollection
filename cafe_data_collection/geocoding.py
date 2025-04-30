@@ -30,15 +30,15 @@ class GeocodingClient:
 
     async def get_coordinates(
         self, address: str, city: str
-    ) -> tuple[float, float] | None:
-        """Get latitude and longitude for a given address.
+    ) -> tuple[tuple[float, float], str] | None:
+        """Get latitude, longitude and place ID for a given address.
 
         Args:
             address: Street address of the cafe
             city: City name to improve geocoding accuracy
 
         Returns:
-            Tuple of (latitude, longitude) if found, None otherwise
+            Tuple of ((latitude, longitude), place_id) if found, None otherwise
         """
         if not self.api_key:
             logger.warning("Google Maps API key not configured")
@@ -60,10 +60,12 @@ class GeocodingClient:
                 data = response.json()
 
                 if data["status"] == "OK" and data["results"]:
-                    location = data["results"][0]["geometry"]["location"]
+                    result = data["results"][0]
+                    location = result["geometry"]["location"]
                     coordinates = (location["lat"], location["lng"])
+                    place_id = result["place_id"]
 
-                    return coordinates
+                    return coordinates, place_id
                 else:
                     logger.warning(f"No coordinates found for address: {full_address}")
                     return None

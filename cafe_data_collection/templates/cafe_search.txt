@@ -21,11 +21,13 @@ For each cafe, provide:
 
 Format your response as a list of JSON objects with the following structure:
 [
-  {{
+  {
     "cafeName": "string (BUSINESS NAME ONLY, no street/location information)",
     "cafeAddress": "string (full address including street, city, state, zip)",
+    "city": "string (city name)",
     "excerpt": "string",
-  }}
+    "verification": "string (verification details)"
+  }
 ]
 
 Example of correct cafeName format:

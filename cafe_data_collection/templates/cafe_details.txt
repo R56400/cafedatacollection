@@ -219,7 +219,7 @@ Guidelines for content:
    - cafe_score - Overall Score: Float between 0-10, one decimal place. Consider all aspects.
    - coffee_score - Coffee Score: Float between 0-10, one decimal place. Quality, variety, and execution.
    - Food Score: Float between 0-10, one decimal place. Quality and selection of food offerings.
-   - Vibe Score: Integer between 1-10. Overall feeling and energy.
+   - Vibe Score: Integer between 1-10 (no decimals). Overall feeling and energy.
    - Atmosphere Score: Float between 0-10, one decimal place. Design, comfort, and ambiance.
    - Service Score: Float between 0-10, one decimal place. Staff knowledge, friendliness, efficiency.
    - Value Score: Float between 0-10, one decimal place. Price relative to quality and experience.
