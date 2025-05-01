@@ -13,11 +13,6 @@ For each cafe, provide:
 - Business name ONLY (do not include street/location information in the name, even if it appears on their storefront)
 - Complete street address (verified through Google Maps or official business listing)
 - A brief one-sentence description of what makes this cafe special
-- A detailed verification note including:
-  * The source of verification (e.g. Yelp, Google Maps, official website)
-  * Confirmation that it's primarily a coffee shop/cafe
-  * Date of most recent reviews/activity
-  * Business category/type as listed on verification source
 
 Format your response as a list of JSON objects with the following structure:
 [
@@ -26,7 +21,6 @@ Format your response as a list of JSON objects with the following structure:
     "cafeAddress": "string (full address including street, city, state, zip)",
     "city": "string (city name)",
     "excerpt": "string",
-    "verification": "string (verification details)"
   }
 ]
 

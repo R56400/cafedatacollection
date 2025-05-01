@@ -1,6 +1,7 @@
 import asyncio
 import json
 import time
+from datetime import date
 from pathlib import Path
 from typing import List
 
@@ -284,6 +285,9 @@ class LLMClient:
 
             # Extract the fields from the first entry
             fields = response_json["entries"][0]["fields"]
+
+            # Set today's date as the publish date
+            fields["publishDate"] = {"en-US": date.today().strftime("%Y-%m-%d")}
 
             # Ensure proper structure for social media links and city reference
             if "instagramLink" in fields and isinstance(
