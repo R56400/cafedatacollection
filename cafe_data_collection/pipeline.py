@@ -109,7 +109,7 @@ class CafePipeline:
             try:
                 # Get coordinates and place_id
                 geocoding_result = await self.geocoding_client.get_coordinates(
-                    cafe["cafeAddress"], city
+                    cafe["cafeAddress"], city, cafe.get("cafeName")
                 )
 
                 if geocoding_result:
