@@ -124,10 +124,6 @@ async def main():
 
         print(f"\nStep 1 Complete: Loaded data for {len(collection_queue)} cities")
         print(f"Review the output at: {pipeline.pipeline_dir}/step1_city_queue.json")
-
-        if not get_user_confirmation("Continue to cafe retrieval?", skip_confirmations):
-            logger.info("Pipeline stopped after Step 1")
-            return
     else:
         # Load collection queue from file if starting from a later step
         with open(pipeline.pipeline_dir / "step1_city_queue.json", "r") as f:
