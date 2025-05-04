@@ -9,6 +9,7 @@ load_dotenv()
 # Base paths
 BASE_DIR = Path(__file__).parent.parent
 OUTPUT_DIR = BASE_DIR / "output"
+CACHE_DIR = BASE_DIR / ".cache"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
 # API Configuration
@@ -28,7 +29,7 @@ OPENAI_TEMPERATURE = float(
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
-RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10}
+RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10, "google_places": 10}
 
 # Retry Configuration
 MAX_RETRIES = 3

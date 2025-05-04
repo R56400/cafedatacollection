@@ -69,7 +69,7 @@ def _build_enrichment_prompt_from_schema() -> str:
         "1. Social media links (instagramLink and facebookLink) must be in this format:\n"
         '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "ACTUAL_URL"}, "content": [{"nodeType": "text", "value": "PLATFORM_NAME", "marks": [], "data": {}}]}]}]}}\n\n'
         "2. City reference must be in this format:\n"
-        '{"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_ID"}}}\n\n'
+        '{"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_REFERENCE_ID"}}}\n\n'
         "3. Rich text fields (like vibeDescription, theStory, etc.) must be in this format:\n"
         '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "Your text here", "marks": [], "data": {}}]}]}}\n\n'
         "4. Numeric scores must be wrapped in en-US:\n"
@@ -265,7 +265,7 @@ class LLMClient:
                     f"Create a detailed review for {cafe_info['cafeName']} in {cafe_info['city']}.\n"
                     f"Brief description: {cafe_info.get('excerpt', '')}\n"
                     f"Address: {cafe_info['cafeAddress']}\n"
-                    f"City ID for reference: {cafe_info['cityId']}\n\n"
+                    f"City Reference for context: {cafe_info['cityReference']}\n\n"
                     f"{enrichment_requirements}\n\n"
                     "Provide the response as a single JSON object. Do not include any markdown formatting or additional text."
                 ),
@@ -351,12 +351,12 @@ class LLMClient:
             if "cityReference" in fields and isinstance(
                 fields["cityReference"].get("en-US"), str
             ):
-                city_id = cafe_info["cityId"]
+                city_reference_id = cafe_info["cityReference"]
                 fields["cityReference"]["en-US"] = {
                     "sys": {
                         "type": "Link",
                         "linkType": "Entry",
-                        "id": city_id,
+                        "id": city_reference_id,
                     }
                 }
 
