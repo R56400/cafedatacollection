@@ -49,10 +49,10 @@ async def run_city_pipeline(
     """
     city = city_info["city"]
     cafes_needed = city_info["cafes_needed"]
-    city_id = city_info["city_id"]
+    city_reference = city_info["cityReference"]
 
     # Step 2: Get cafes for city
-    result = await pipeline.step2_get_cafes_for_city(city, cafes_needed, city_id)
+    result = await pipeline.step2_get_cafes_for_city(city, cafes_needed, city_reference)
     cafes = result["cafes"]
 
     print(f"\nStep 2 Complete: Retrieved {len(cafes)} cafes for {city}")

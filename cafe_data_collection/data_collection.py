@@ -63,8 +63,8 @@ class DataCollector:
             city = row["City"]
 
             # Get city ID from mapping
-            city_id = self.city_mappings.get(city)
-            if not city_id:
+            city_reference_id = self.city_mappings.get(city)
+            if not city_reference_id:
                 logger.warning(f"No mapping found for city: {city}")
                 continue
 
@@ -72,7 +72,7 @@ class DataCollector:
                 {
                     "city": city,
                     "cafes_needed": int(row["Cafes Needed"]),
-                    "city_id": city_id,
+                    "cityReference": city_reference_id,
                 }
             )
 

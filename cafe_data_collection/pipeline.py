@@ -58,14 +58,14 @@ class CafePipeline:
         return {"collection_queue": collection_queue}
 
     async def step2_get_cafes_for_city(
-        self, city: str, cafes_needed: int, city_id: str
+        self, city: str, cafes_needed: int, city_reference: str
     ) -> dict:
         """Step 2: Get a list of cafes for a specific city.
 
         Args:
             city: Name of the city
             cafes_needed: Number of cafes to retrieve
-            city_id: City ID from mapping file
+            city_reference: City ID from mapping file
 
         Returns:
             Dictionary containing the list of cafes
@@ -82,7 +82,7 @@ class CafePipeline:
         # Add city info to each cafe
         for cafe in cafes:
             cafe["city"] = city
-            cafe["cityId"] = city_id
+            cafe["cityReference"] = city_reference
 
         # Save output for review
         output_file = (
