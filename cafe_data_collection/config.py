@@ -9,6 +9,7 @@ load_dotenv()
 # Base paths
 BASE_DIR = Path(__file__).parent.parent
 OUTPUT_DIR = BASE_DIR / "output"
+CACHE_DIR = BASE_DIR / ".cache"
 TEMPLATES_DIR = BASE_DIR / "templates"
 
 # API Configuration
