@@ -29,7 +29,7 @@ OPENAI_TEMPERATURE = float(
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
-RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10}
+RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10, "google_places": 10}
 
 # Retry Configuration
 MAX_RETRIES = 3

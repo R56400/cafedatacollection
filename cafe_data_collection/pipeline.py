@@ -6,6 +6,7 @@ from .config import LOG_LEVEL, OUTPUT_DIR
 from .data_collection import DataCollector
 from .geocoding import GeocodingClient
 from .llm_client import LLMClient
+from .places import PlacesClient
 from .utils.logging import setup_logger
 
 logger = setup_logger(__name__, level=getattr(logging, LOG_LEVEL))
@@ -34,6 +35,7 @@ class CafePipeline:
         self.collector = DataCollector(input_csv, city_mapping_json)
         self.llm_client = LLMClient()
         self.geocoding_client = GeocodingClient()
+        self.places_client = PlacesClient()
 
     def step1_load_input_data(self) -> dict:
         """Step 1: Load input data and create collection queue.
@@ -113,9 +115,8 @@ class CafePipeline:
                 )
 
                 if geocoding_result:
-                    coordinates, place_id = geocoding_result
+                    coordinates = geocoding_result
                     cafe["latitude"], cafe["longitude"] = coordinates
-                    cafe["placeId"] = place_id
 
                 geocoded_cafes.append(cafe)
 
@@ -143,9 +144,25 @@ class CafePipeline:
 
         enriched_entries = []
         for cafe in cafes:
-            enriched_cafe = await self.llm_client.enrich_cafe_details(cafe)
-            # Extract the entry from the payload and add to our list
-            enriched_entries.extend(enriched_cafe.entries)
+            # Find Place ID first
+            place_id = await self.places_client.find_place_id(
+                name=cafe.get("cafeName"),
+                address=cafe.get("cafeAddress"),
+                city=cafe.get("city"),
+            )
+
+            if not place_id:
+                logger.warning(
+                    f"Could not find Place ID for {cafe.get('cafeName', 'N/A')} at {cafe.get('cafeAddress', 'N/A')}. Skipping enrichment."
+                )
+                continue
+
+            cafe["placeId"] = place_id
+
+            # Now proceed with LLM enrichment using the cafe dict containing the placeId
+            enriched_cafe_result = await self.llm_client.enrich_cafe_details(cafe)
+
+            enriched_entries.extend(enriched_cafe_result.entries)
 
         # Create a single payload with all entries
         combined_payload = {
