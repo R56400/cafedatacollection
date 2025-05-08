@@ -26,13 +26,11 @@ class ArticlePipeline:
             input_file: Path to JSON file with article data
         """
         self.input_file = Path(input_file)
-        self.output_dir = Path("output")
-        self.output_dir.mkdir(exist_ok=True)
-
-        # Initialize components
+        self.output_dir = Path("articles/outputs")
+        self.output_dir.mkdir(exist_ok=True, parents=True)
         self.llm_client = LLMClient()
 
-    def _load_input_data(self) -> dict:
+    def step1_load_input_data(self) -> dict:
         """Load and validate input data.
 
         Returns:
@@ -54,27 +52,24 @@ class ArticlePipeline:
             raise
         except Exception as e:
             logger.error(f"Error loading input file: {e}")
+            logger.error(f"Attempted to load file at: {self.input_file.absolute()}")
             raise
 
-    def _build_article_prompt(self, article_data: dict) -> str:
-        """Build the prompt for article generation.
+    async def step2_generate_article(
+        self, article_data: dict
+    ) -> ContentfulArticlePayload:
+        """Generate article content using the LLM.
 
         Args:
             article_data: Dictionary containing article information
 
         Returns:
-            Formatted prompt string
+            ContentfulArticlePayload object containing the generated article
         """
-        # Get the schema from the Fields model
-        schema = Fields.schema()
+        logger.info(f"Generating article: {article_data['title']}")
 
-        # Extract field descriptions and requirements
-        field_info = []
-        for field_name, field in schema["properties"].items():
-            if "description" in field:
-                field_info.append(f"- {field_name}: {field['description']}")
-
-        return (
+        # Build the prompt
+        prompt = (
             "You are a coffee expert creating an article. Your response MUST be a valid JSON object with the following structure:\n\n"
             "{\n"
             '  "entries": [{\n'
@@ -88,14 +83,19 @@ class ArticlePipeline:
             "      }\n"
             "    },\n"
             '    "fields": {\n'
-            '      // All fields below must be wrapped in {"en-US": value}\n'
+            '      "articleTitle": {"en-US": "Your Article Title"},\n'
+            '      "articleSlug": {"en-US": "your-article-slug"},\n'
+            '      "authorName": {"en-US": "Chris Jordan"},\n'
+            '      "articleHeroImage": {"en-US": {"sys": {"type": "Link", "linkType": "Asset", "id": "placeholder-image-id"}}},\n'
+            '      "articleExcerpt": {"en-US": "A brief summary of your article"},\n'
+            '      "articleContent": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "Your article content here", "marks": [], "data": {}}]}]}},\n'
+            '      "articleTags": {"en-US": []},\n'
+            '      "articleFeatured": {"en-US": false},\n'
+            '      "articleGallery": {"en-US": []},\n'
+            '      "videoEmbed": {"en-US": ""}\n'
             "    }\n"
             "  }]\n"
             "}\n\n"
-            "IMPORTANT: The response MUST:\n"
-            "1. Include the complete 'entries' wrapper and 'sys' object exactly as shown above\n"
-            "2. Wrap ALL field values in {'en-US': value}\n"
-            "3. Follow the specific format requirements for each field type\n\n"
             "Article Information:\n"
             f"Title: {article_data['title']}\n"
             f"Outline: {json.dumps(article_data['outline'], indent=2)}\n"
@@ -103,29 +103,15 @@ class ArticlePipeline:
             f"Keywords: {', '.join(article_data['targetKeywords'])}\n"
             f"Tone: {article_data['tone']}\n"
             f"Additional Context: {article_data['additionalContext']}\n\n"
-            "Each field must follow these requirements:\n\n"
-            + "\n".join(field_info)
-            + "\n\nIMPORTANT FIELD FORMATS:\n\n"
-            "1. Rich text fields (articleContent) must be in this format:\n"
-            '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "Your text here", "marks": [], "data": {}}]}]}}\n\n'
-            "2. Date fields must be in YYYY-MM-DD format\n"
-            "3. Boolean fields must be true/false\n"
-            "4. Array fields must be lists\n\n"
+            "IMPORTANT: You MUST include ALL fields shown in the example above, with the following requirements:\n"
+            "1. articleTitle: The full title of the article\n"
+            "2. articleSlug: URL-friendly version of the title (lowercase, hyphens instead of spaces)\n"
+            "3. authorName: Always set to 'Chris Jordan'\n"
+            "4. articleHeroImage: Use a placeholder image ID for now\n"
+            "5. articleExcerpt: A compelling 1-2 sentence summary\n"
+            "6. articleContent: Rich text content in the specified format\n"
+            "7. All other fields should be included as shown in the example\n"
         )
-
-    async def generate_article(self, article_data: dict) -> ContentfulArticlePayload:
-        """Generate article content using the LLM.
-
-        Args:
-            article_data: Dictionary containing article information
-
-        Returns:
-            ContentfulArticlePayload object containing the generated article
-        """
-        logger.info(f"Generating article: {article_data['title']}")
-
-        # Build the prompt
-        prompt = self._build_article_prompt(article_data)
 
         # Prepare messages for the API call
         messages = [
@@ -144,7 +130,7 @@ class ArticlePipeline:
             raise ValueError("Failed to get response from OpenAI API")
 
         try:
-            # Parse the response as a complete ContentfulArticlePayload
+            # Parse the response
             response_json = json.loads(response)
 
             # Extract the fields from the first entry
@@ -172,7 +158,9 @@ class ArticlePipeline:
             logger.error(f"Failed to parse LLM response: {e}")
             raise ValueError(f"Invalid response format from LLM: {e}")
 
-    def save_output(self, payload: ContentfulArticlePayload, output_file: str = None):
+    def step3_save_output(
+        self, payload: ContentfulArticlePayload, output_file: str = None
+    ):
         """Save the generated article to a file.
 
         Args:
@@ -196,16 +184,25 @@ class ArticlePipeline:
     async def run_pipeline(self):
         """Run the complete article generation pipeline."""
         try:
-            # Load input data
-            input_data = self._load_input_data()
+            # Step 1: Load input data
+            input_data = self.step1_load_input_data()
+            print(
+                f"\nStep 1 Complete: Loaded data for {len(input_data['articles'])} articles"
+            )
 
-            # Process each article
+            # Step 2: Generate articles
             for article in input_data["articles"]:
-                # Generate article content
-                payload = await self.generate_article(article)
+                print(f"\nGenerating article: {article['title']}")
+                payload = await self.step2_generate_article(article)
+                print(f"Article generation complete: {article['title']}")
 
-                # Save output
-                self.save_output(payload)
+                # Step 3: Save output
+                output_file = (
+                    self.output_dir
+                    / f"article_{article['title'].lower().replace(' ', '_')}.json"
+                )
+                self.step3_save_output(payload, output_file)
+                print(f"Saved article to: {output_file}")
 
             logger.info("Pipeline completed successfully")
 
