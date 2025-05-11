@@ -1,0 +1,47 @@
+{
+  "articles": [
+    {
+      "title": "The Evolution of Coffee Brewing Methods",
+      "outline": [
+        "Introduction to coffee brewing history",
+        "Traditional brewing methods",
+        "Modern innovations in coffee brewing",
+        "Impact of technology on brewing",
+        "Future of coffee brewing",
+        "Conclusion"
+      ],
+      "targetLength": {
+        "type": "medium",
+        "wordCount": {
+          "min": 1000,
+          "max": 1500
+        }
+      },
+      "targetKeywords": [
+        "coffee brewing",
+        "coffee history",
+        "brewing methods",
+        "coffee technology"
+      ],
+      "tone": "informative",
+      "additionalContext": "Focus on how brewing methods have evolved from traditional to modern techniques, including the role of technology in coffee preparation."
+    }
+  ],
+  "lengthDefinitions": {
+    "short": {
+      "min": 500,
+      "max": 800,
+      "description": "Brief articles focused on key points"
+    },
+    "medium": {
+      "min": 1000,
+      "max": 1500,
+      "description": "Standard articles with balanced detail"
+    },
+    "long": {
+      "min": 2000,
+      "max": 3000,
+      "description": "Comprehensive articles with in-depth coverage"
+    }
+  }
+}
