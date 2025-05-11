@@ -108,9 +108,18 @@ class ArticlePipeline:
             "2. articleSlug: URL-friendly version of the title (lowercase, hyphens instead of spaces)\n"
             "3. authorName: Always set to 'Chris Jordan'\n"
             "4. articleHeroImage: Use a placeholder image ID for now\n"
-            "5. articleExcerpt: A compelling 1-2 sentence summary\n"
+            "5. articleExcerpt: A compelling 1 sentence summary\n"
             "6. articleContent: Rich text content in the specified format\n"
             "7. All other fields should be included as shown in the example\n"
+            "\nCONTENT STYLE AND DEPTH REQUIREMENTS:\n"
+            "- Do NOT use bold headers, section titles, or explicit headings within the main article content.\n"
+            "- Write in a continuous, multi-paragraph narrative style, as you would find in a magazine feature or high-quality blog post. Paragraphs sould vary in legnth..\n"
+            "- Ensure smooth transitions between ideas and sections, weaving the outline points together naturally.\n"
+            "- Go into significant depth on each topic, providing detailed explanations, examples, and context.\n"
+            "- The article should not feel rushed or superficial or too synthetic.\n"
+            "- Use a storytelling approach, focusing on flow, engagement, and depth.\n"
+            "- Avoid lists, bullet points, or any formatting that breaks the narrative flow.\n"
+            "- Maintain a consistent, engaging, and informative tone throughout.\n"
         )
 
         # Prepare messages for the API call
