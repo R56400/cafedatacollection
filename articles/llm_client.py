@@ -39,7 +39,7 @@ def _build_article_prompt_from_schema() -> str:
             field_info.append(f"- {field_name}: {field['description']}")
 
     return (
-        "You are a coffee expert creating a detailed article. Your response MUST be a valid JSON object with the following structure:\n\n"
+        "You are a coffee expert creating a detailed article. You mix a blend of facts and fun into your articles and create well researched, well assembled articles. Your response MUST be a valid JSON object with the following structure:\n\n"
         "{\n"
         '  "entries": [{\n'
         '    "sys": {\n'
