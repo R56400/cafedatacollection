@@ -110,23 +110,23 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the coffee quality. This score is focused on coffee quality, not the quality of the coffee shop. Ratings of 9.2 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10 for the coffee quality. This score is focused on coffee quality, not the quality of the coffee shop. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the atmosphere of the cafe. This score is focused on the atmosphere of the cafe, not the quality of the coffe. atings of 9.2 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10 for the atmosphere of the cafe. This score is focused on the atmosphere of the cafe, not the quality of the coffe. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10. This should focus on the service recieved from the employees. Ratings of 9.2 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10. This should focus on the service recieved from the employees. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
     )
     valueScore: Dict[str, float] = Field(
         ...,
-        description="Value score from 1–10. This should evaluate the cost of the coffee and food compared to the quality of the coffee and food. Ratings of 9.2 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Value score from 1–10. This should evaluate the cost of the coffee and food compared to the quality of the coffee and food. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
     )
     foodScore: Dict[str, float] = Field(
         ...,
-        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings of 9.2 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
     )
     vibeScore: Dict[str, int] = Field(
         ...,
