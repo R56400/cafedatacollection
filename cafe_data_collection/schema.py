@@ -110,23 +110,23 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the coffee quality. This score is focused on coffee quality, not the quality of the coffee shop. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10 for the coffee quality. This score is focused on coffee quality, not the quality of the coffee shop. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the atmosphere of the cafe. This score is focused on the atmosphere of the cafe, not the quality of the coffe. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10 for the atmosphere of the cafe. This score is focused on the atmosphere of the cafe, not the quality of the coffe. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10. This should focus on the service recieved from the employees. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Score from 1–10. This should focus on the service recieved from the employees. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     valueScore: Dict[str, float] = Field(
         ...,
-        description="Value score from 1–10. This should evaluate the cost of the coffee and food compared to the quality of the coffee and food. Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Value score from 1–10. This should evaluate the cost of the coffee and food compared to the quality of the coffee and food. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     foodScore: Dict[str, float] = Field(
         ...,
-        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings of 9.7 and high should be reserved for exceptional coffee quality an used sparingly.",
+        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     vibeScore: Dict[str, int] = Field(
         ...,
@@ -139,15 +139,15 @@ class Fields(BaseModel):
     )
     theStory: Dict[str, Document] = Field(
         ...,
-        description="Text description of the cafe's origin and story. Write 3-5 sentences, Focus on the cafe's origins and mission, Highlight notable achievements or milestones, Discuss their broader vision and impact, DO NOT focus on coffee specifics, DO NOT use individual names.",
+        description="Text description of the cafe's origin and story. Write 3-5 sentences, Focus on the cafe's origins and mission, Highlight notable achievements or milestones, Discuss their broader vision and impact, DO NOT focus on coffee specifics, DO NOT use individual names. Do not start by restating the prompt or the name of the cafe within the first sentence.",
     )
     craftExpertise: Dict[str, Document] = Field(
         ...,
-        description="Text about the coffee craft and preparation.Write up to 5 sentences, Detail their coffee quality and preparation, Describe barista expertise and service, Highlight special or unique drinks, Discuss seating arrangements and drinkware, Focus on the complete food and drink experience.",
+        description="Text about the coffee craft and preparation.Write up to 5 sentences, Detail their coffee quality and preparation, Describe barista expertise and service, Highlight special or unique drinks, Discuss seating arrangements and drinkware, Focus on the complete food and drink experience.  Do not start by restating the prompt or the name of the cafe within the first sentence.",
     )
     setsApart: Dict[str, Document] = Field(
         ...,
-        description="Text describing what sets the cafe apart.Write 3-4 sentences, Highlight unique differentiators from other cafes, Discuss any special perspective on coffee or design, Focus on standout features or approaches, Emphasize what makes them memorable.",
+        description="Text describing what sets the cafe apart.Write 3-4 sentences, Highlight unique differentiators from other cafes, Discuss any special perspective on coffee or design, Focus on standout features or approaches, Emphasize what makes them memorable.  Do not start by restating the prompt or the name of the cafe within the first sentence.",
     )
 
     cafeAddress: Dict[str, str] = Field(
