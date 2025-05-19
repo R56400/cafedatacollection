@@ -106,7 +106,7 @@ class Fields(BaseModel):
 
     overallScore: Dict[str, float] = Field(
         ...,
-        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, serviceScore, valueScore and foodScore. It should only be to the 1 decimal place.",
+        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, serviceScore and foodScore. It should only be to the 1 decimal place.",
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
@@ -119,10 +119,6 @@ class Fields(BaseModel):
     serviceScore: Dict[str, float] = Field(
         ...,
         description="Score from 1–10. This should focus on the service recieved from the employees. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
-    )
-    valueScore: Dict[str, float] = Field(
-        ...,
-        description="Value score from 1–10. This should evaluate the cost of the coffee and food compared to the quality of the coffee and food. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
     foodScore: Dict[str, float] = Field(
         ...,

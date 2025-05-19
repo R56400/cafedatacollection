@@ -98,9 +98,6 @@ EXAMPLE JSON SCHEMA THAT YOU MUST EXACTLY MATCH:
         "serviceScore": {{
           "en-US": 9
         }},
-        "valueScore": {{
-          "en-US": 8
-        }},
         "foodScore": {{
           "en-US": 7
         }},
