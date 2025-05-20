@@ -1,14 +1,13 @@
 {
   "articles": [
     {
-      "title": "The Evolution of Coffee Brewing Methods",
+      "title": "Dialing In Espresso: Step-by-Step Guide to Perfect Extraction",
       "outline": [
-        "Introduction to coffee brewing history",
-        "Traditional brewing methods",
-        "Modern innovations in coffee brewing",
-        "Impact of technology on brewing",
-        "Future of coffee brewing",
-        "Conclusion"
+        "Start with the Basics: Establish Your Espresso Recipe",
+        "Grind Size Matters: How to Adjust Based on Shot Time",
+        "Taste as Your Compass: How Flavor Guides Your Adjustments",
+        "Tamp, Distribution, and Channeling: Fixing Physical Inconsistencies",
+        "Refining Variables: Dose, Yield, and Brew Time Adjustments"
       ],
       "targetLength": {
         "type": "medium",
@@ -18,14 +17,20 @@
         }
       },
       "targetKeywords": [
-        "coffee brewing",
-        "coffee history",
-        "brewing methods",
-        "coffee technology"
+        "espresso extraction",
+        "brew ratio",
+        "grind size",
+        "tamping technique",
+        "channeling",
+        "under-extraction",
+        "over-extraction",
+        "shot time",
+        "espresso recipe",
+        "dialing in espresso"
       ],
-      "tone": "informative",
-      "additionalContext": "Focus on how brewing methods have evolved from traditional to modern techniques, including the role of technology in coffee preparation."
-    }
+      "tone": "educational",
+      "additionalContext": "This article is aimed at home baristas and coffee enthusiasts who are learning how to fine-tune espresso recipes to achieve consistent, balanced shots. It walks readers through a methodical approach to dialing in espresso using sensory feedback, time measurements, and adjustment techniques related to grind size, tamping, and brew ratio. The tone is encouraging and precise, focusing on helping readers recognize cause-effect relationships in their brewing process."
+    }    
   ],
   "lengthDefinitions": {
     "short": {
