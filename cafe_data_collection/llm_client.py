@@ -31,54 +31,40 @@ logger = setup_logger(__name__)
 
 def _build_enrichment_prompt_from_schema() -> str:
     """Build the enrichment prompt dynamically from the Fields schema."""
-    # Get the schema from the Fields model
-    schema = Fields.schema()
-
-    # Extract field descriptions and requirements
-    field_info = []
-    for field_name, field in schema["properties"].items():
-        if "description" in field:
-            field_info.append(f"- {field_name}: {field['description']}")
-
     return (
-        "You are a coffee expert creating a detailed review. Your response MUST be a valid JSON object with the following structure:\n\n"
+        "Create a detailed review in valid JSON format. The response must be a SINGLE JSON object with this exact structure:\n\n"
         "{\n"
         '  "entries": [{\n'
-        '    "sys": {\n'
-        '      "contentType": {\n'
-        '        "sys": {\n'
-        '          "type": "Link",\n'
-        '          "linkType": "ContentType",\n'
-        '          "id": "cafeReview"\n'
-        "        }\n"
-        "      }\n"
-        "    },\n"
+        '    "sys": {"contentType": {"sys": {"type": "Link", "linkType": "ContentType", "id": "cafeReview"}}},\n'
         '    "fields": {\n'
-        '      // All fields below must be wrapped in {"en-US": value}\n'
-        '      // Example: "cafeName": {"en-US": "Coffee Shop Name"}\n'
+        '      "cafeName": {"en-US": "NAME"},\n'
+        '      "authorName": {"en-US": "Chris Jordan"},\n'
+        '      "publishDate": {"en-US": "YYYY-MM-DD"},\n'
+        '      "slug": {"en-US": "cafe-name-street"},\n'
+        '      "excerpt": {"en-US": "One sentence summary"},\n'
+        '      "overallScore": {"en-US": 8.5},\n'
+        '      "coffeeScore": {"en-US": 8.5},\n'
+        '      "atmosphereScore": {"en-US": 8.5},\n'
+        '      "serviceScore": {"en-US": 8.5},\n'
+        '      "vibeScore": {"en-US": 8},\n'
+        '      "vibeDescription": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3 sentences about vibe", "marks": [], "data": {}}]}]}},\n'
+        '      "theStory": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-5 sentences about story", "marks": [], "data": {}}]}]}},\n'
+        '      "craftExpertise": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "5 sentences about craft", "marks": [], "data": {}}]}]}},\n'
+        '      "setsApart": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-4 sentences about uniqueness", "marks": [], "data": {}}]}]}}\n'
         "    }\n"
         "  }]\n"
         "}\n\n"
-        "IMPORTANT: The response MUST:\n"
-        "1. Include the complete 'entries' wrapper and 'sys' object exactly as shown above\n"
-        "2. Wrap ALL field values in {'en-US': value}\n"
-        "3. Follow the specific format requirements for each field type\n\n"
-        "Each field must follow these requirements:\n\n"
-        + "\n".join(field_info)
-        + "\n\nIMPORTANT FIELD FORMATS:\n\n"
-        "1. Social media links (instagramLink and facebookLink) must be in this format:\n"
-        '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "ACTUAL_URL"}, "content": [{"nodeType": "text", "value": "PLATFORM_NAME", "marks": [], "data": {}}]}]}]}}\n\n'
-        "2. City reference must be in this format:\n"
-        '{"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_REFERENCE_ID"}}}\n\n'
-        "3. Rich text fields (like vibeDescription, theStory, etc.) must be in this format:\n"
-        '{"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "Your text here", "marks": [], "data": {}}]}]}}\n\n'
-        "4. Numeric scores must be wrapped in en-US:\n"
-        '{"en-US": 8.5}\n\n'
-        "IMPORTANT SCORE FORMATS:\n"
-        "- vibeScore must be an integer between 1-10 (no decimals). Example: {'en-US': 8}\n"
-        "- All other scores (overallScore, coffeeScore, atmosphereScore, etc.) should be floats with one decimal place. Example: {'en-US': 8.5}\n\n"
-        "5. Coordinates must be wrapped in en-US:\n"
-        '{"en-US": {"lat": 35.6813, "lon": -105.9787}}\n\n'
+        "SCORING GUIDELINES:\n"
+        "- Overall: Average of coffee, atmosphere, and service scores (not vibe)\n"
+        "- Coffee (6.0-10): Quality, consistency, expertise\n"
+        "- Atmosphere (6.0-10): Design, comfort, ambiance\n"
+        "- Service (6.0-10): Staff knowledge, hospitality\n"
+        "- Vibe (6-10, whole numbers): Cultural impact\n\n"
+        "IMPORTANT:\n"
+        "1. Response must be VALID JSON\n"
+        "2. Keep the exact structure shown above\n"
+        "3. Do not add any fields\n"
+        "4. Do not add any text outside the JSON\n"
     )
 
 
