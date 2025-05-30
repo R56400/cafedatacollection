@@ -106,27 +106,23 @@ class Fields(BaseModel):
 
     overallScore: Dict[str, float] = Field(
         ...,
-        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, serviceScore and foodScore. It should only be to the 1 decimal place.",
+        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, serviceScore and foodScore. It should only be to the 1 decimal place. The distribution of scores should roughly follow a bell curve centered around 7.5, with fewer cafes receiving extreme scores (5-7 or 9-10).",
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the coffee quality. This score is focused on coffee quality, not the quality of the coffee shop. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
+        description="Score from 1–10 for coffee quality. Distribution guidelines: 1-3: Poor (major issues, undrinkable), 4-5: Below average (noticeable flaws), 6: Average (acceptable but unremarkable), 7: Good (solid execution), 8: Very good (minor flaws only), 9: Excellent (exceptional quality), 10: Perfect (world-class, rare). Consider factors: bean quality, roast profile, extraction, consistency, temperature, and presentation.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for the atmosphere of the cafe. This score is focused on the atmosphere of the cafe, not the quality of the coffe. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
+        description="Score from 1–10 for cafe atmosphere. Distribution guidelines: 1-3: Poor (uncomfortable, major issues), 4-5: Below average (functional but uninspiring), 6: Average (comfortable but generic), 7: Good (pleasant environment), 8: Very good (thoughtful design), 9: Excellent (exceptional ambiance), 10: Perfect (unique, memorable space). Consider: lighting, music, seating comfort, layout, cleanliness, and design cohesion.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10. This should focus on the service recieved from the employees. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
-    )
-    foodScore: Dict[str, float] = Field(
-        ...,
-        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
+        description="Score from 1–10 for service quality. Distribution guidelines: 1-3: Poor (rude, major issues), 4-5: Below average (inattentive, slow), 6: Average (functional but impersonal), 7: Good (friendly, efficient), 8: Very good (knowledgeable, attentive), 9: Excellent (exceptional hospitality), 10: Perfect (outstanding, memorable service). Consider: staff knowledge, attitude, efficiency, and handling of busy periods.",
     )
     vibeScore: Dict[str, int] = Field(
         ...,
-        description="Vibe score from 1–10. This should focus on the vibe of the cafe meaning what is the ambiance and how cool is the cafe. This is different from atmosphereScore in that the vibeScore is meant to help readers understand how cool the cafe is. Ratings of 9 and 10 should be reserved for exceptional cafes and used sparingly.",
+        description="Score from 1–10 for cafe vibe/coolness factor. Distribution guidelines: 1-3: Generic/chain-like, 4-5: Basic neighborhood cafe, 6: Solid local spot, 7: Hip/trendy place, 8: Local cultural hub, 9: Destination-worthy uniqueness, 10: Iconic/influential in cafe culture. Consider: uniqueness, cultural impact, community role, and overall coolness. Scores of 9-10 should be given to places that are truly exceptional and memorable.",
     )
 
     vibeDescription: Dict[str, Document] = Field(
