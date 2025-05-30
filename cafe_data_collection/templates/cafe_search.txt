@@ -10,21 +10,13 @@ Focus on:
 - Must be primarily a coffee shop/cafe (not a hotel, restaurant, or other business type that happens to serve coffee)
 - When providing scores, use the entire scoring range and do not worry about creating an average score in the middle to be safe.
 
-IMPORTANT: Your response must be a JSON array containing cafe objects. Each cafe object must have these exact fields:
-{
-  "cafeName": "string",      // Name of the cafe without location info
-  "cafeAddress": "string",   // Complete street address
-  "city": "string",         // City name
-  "excerpt": "string"       // One-sentence description
-}
-
-Example of correct JSON format:
+Format your response as a list of JSON objects with the following structure:
 [
   {
-    "cafeName": "Iconik Coffee Roasters",
-    "cafeAddress": "1600 Lena St Ste A2, Santa Fe, NM 87505",
-    "city": "Santa Fe",
-    "excerpt": "Known for its expertly roasted single-origin beans and spacious, artsy atmosphere, Iconik is a favorite among coffee aficionados in Santa Fe."
+    "cafeName": "string (BUSINESS NAME ONLY, no street/location information)",
+    "cafeAddress": "string (full address including street, city, state, zip)",
+    "city": "string (city name)",
+    "excerpt": "string",
   }
 ]
 
