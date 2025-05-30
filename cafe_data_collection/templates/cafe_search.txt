@@ -10,12 +10,27 @@ Focus on:
 - Must be primarily a coffee shop/cafe (not a hotel, restaurant, or other business type that happens to serve coffee)
 - When providing scores, use the entire scoring range and do not worry about creating an average score in the middle to be safe.
 
-For each cafe, provide:
-- Business name ONLY (do not include street/location information in the name, even if it appears on their storefront)
-- Complete street address (verified through Google Maps or official business listing)
-- A brief one-sentence description of what makes this cafe special
+IMPORTANT: Your response must be a JSON array containing cafe objects. Each cafe object must have these exact fields:
+{
+  "cafeName": "string",      // Name of the cafe without location info
+  "cafeAddress": "string",   // Complete street address
+  "city": "string",         // City name
+  "excerpt": "string"       // One-sentence description
+}
+
+Example of correct JSON format:
+[
+  {
+    "cafeName": "Iconik Coffee Roasters",
+    "cafeAddress": "1600 Lena St Ste A2, Santa Fe, NM 87505",
+    "city": "Santa Fe",
+    "excerpt": "Known for its expertly roasted single-origin beans and spacious, artsy atmosphere, Iconik is a favorite among coffee aficionados in Santa Fe."
+  }
+]
 
 Example of correct cafeName format:
 ✓ "cafeName": "Iconik Coffee Roasters"
 ✗ "cafeName": "Iconik Coffee Roasters, Guadalupe"
-✗ "cafeName": "Iconik Coffee Roasters - Lena St" 
+✗ "cafeName": "Iconik Coffee Roasters - Lena St"
+
+Your response must be valid JSON and nothing else. Do not include any explanatory text, markdown formatting, or numbered lists. 
