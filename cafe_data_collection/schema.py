@@ -110,19 +110,19 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for coffee quality. Consider: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-7.9: Solid specialty cafe doing everything right, 8.0-8.9: Exceptional quality with unique offerings or perfect execution, 9.0-10: Among the absolute best in the city. Key factors: espresso quality, consistency between visits, coffee sourcing, barista expertise, drink menu creativity. Usse the full range of the score, and don't just bias to round numbers. If you see reviews that mention great coffee, give that extra weight when creating your score.",
+        description="Score from 1–10 for coffee quality. Consider: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-8.2: Solid specialty cafe doing everything right, 8.3-9.5: Exceptional quality with unique offerings or perfect execution, 9.6-10: Among the absolute best in the city. Key factors: espresso quality, consistency between visits, coffee sourcing, barista expertise, drink menu creativity. Usse the full range of the score, and don't just bias to round numbers. If you see reviews that mention great coffee, give that extra weight when creating your score.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for cafe atmosphere. Consider: 6.0-6.9: Basic but functional cafe space, 7.0-7.9: Well-designed with good ambiance, 8.0-8.9: Exceptional design that enhances the experience, 9.0-10: Iconic spaces that are unmatched in the city (use sparingly). Key factors: space utilization, seating comfort, lighting, noise levels, cleanliness, unique design elements.",
+        description="Score from 1–10 for cafe atmosphere. Consider: 6.0-6.9: Basic but functional cafe space, 7.0-8.2: Well-designed with good ambiance, 8.2-9.5: Exceptional design that enhances the experience, 9.6-10: Iconic spaces that are unmatched in the city (use sparingly). Key factors: space utilization, seating comfort, lighting, noise levels, cleanliness, unique design elements.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for service quality. Consider: 6.0-6.9: Professional but room for improvement, 7.0-7.9: Consistently good service with knowledgeable staff, 8.0-8.9: Outstanding service that elevates the experience, 9.0-10: Sets the standard for cafe service in the city. Key factors: coffee knowledge, wait times, handling rush periods, attention to detail, going above and beyond.",
+        description="Score from 1–10 for service quality. Consider: 6.0-6.9: Professional but room for improvement, 7.0-7.9: Consistently good service with knowledgeable staff, 8.0-9.5: Outstanding service that elevates the experience, 9.6-10: Sets the standard for cafe service in the city. Key factors: coffee knowledge, wait times, handling rush periods, attention to detail, going above and beyond.",
     )
     vibeScore: Dict[str, int] = Field(
         ...,
-        description="Score from 1–10 for cafe vibe/coolness factor. Note: This is NOT included in the overall score. Consider: 6.0-6.9: Pleasant but unremarkable, 7.0-7.9: Notable spot with character, 8.0-8.9: Influential place that draws people in, 9.0-10: Defines coffee culture for the city. Key factors: uniqueness, cultural impact, community role, that intangible 'it factor'.",
+        description="Score from 1–10 for cafe vibe/coolness factor. Note: This is NOT included in the overall score. Consider: 6.0-6.9: Pleasant but unremarkable, 7.0-8.2: Notable spot with character, 8.2-9.2: Influential place that draws people in, 9.2-10: Defines coffee culture for the city. Key factors: uniqueness, cultural impact, community role, that intangible 'it factor'.",
     )
 
     vibeDescription: Dict[str, Document] = Field(
