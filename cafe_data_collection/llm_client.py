@@ -157,7 +157,7 @@ class LLMClient:
                             "temperature": self.temperature,
                             "max_tokens": self.max_tokens,
                         },
-                        timeout=30.0,
+                        timeout=90.0,
                     )
 
                     logger.debug(f"Response status code: {response.status_code}")
