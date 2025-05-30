@@ -110,11 +110,11 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for coffee quality. Consider: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-8.2: Solid specialty cafe doing everything right, 8.3-9.5: Exceptional quality with unique offerings or perfect execution, 9.6-10: Among the absolute best in the city. Key factors: espresso quality, consistency between visits, coffee sourcing, barista expertise, drink menu creativity. Usse the full range of the score, and don't just bias to round numbers. If you see reviews that mention great coffee, give that extra weight when creating your score.",
+        description="Score from 1–10 for coffee quality. Consider: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-8.2: Solid specialty cafe doing everything right, 8.3-9.7: Exceptional quality with unique offerings or perfect execution, 9.8-10: Among the absolute best in the city. Key factors: espresso quality, consistency between visits, coffee sourcing, barista expertise, drink menu creativity. Usse the full range of the score, and don't just bias to round numbers. If you see reviews that mention great coffee, give that extra weight when creating your score.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for cafe atmosphere. Consider: 6.0-6.9: Basic but functional cafe space, 7.0-8.2: Well-designed with good ambiance, 8.2-9.5: Exceptional design that enhances the experience, 9.6-10: Iconic spaces that are unmatched in the city (use sparingly). Key factors: space utilization, seating comfort, lighting, noise levels, cleanliness, unique design elements.",
+        description="Score from 1–10 for cafe atmosphere. Consider: 6.0-6.9: Basic but functional cafe space, 7.0-8.2: Well-designed with good ambiance, 8.2-9.7: Exceptional design that enhances the experience, 9.8-10: Iconic spaces that are unmatched in the city (use sparingly). Key factors: space utilization, seating comfort, lighting, noise levels, cleanliness, unique design elements.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
