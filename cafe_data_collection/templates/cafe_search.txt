@@ -8,21 +8,12 @@ Focus on:
 - Cafes with distinctive atmosphere or concept
 - Must be verified through recent reviews or official business listings
 - Must be primarily a coffee shop/cafe (not a hotel, restaurant, or other business type that happens to serve coffee)
+- When providing scores, use the entire scoring range and do not worry about creating an average score in the middle to be safe.
 
 For each cafe, provide:
 - Business name ONLY (do not include street/location information in the name, even if it appears on their storefront)
 - Complete street address (verified through Google Maps or official business listing)
 - A brief one-sentence description of what makes this cafe special
-
-Format your response as a list of JSON objects with the following structure:
-[
-  {
-    "cafeName": "string (BUSINESS NAME ONLY, no street/location information)",
-    "cafeAddress": "string (full address including street, city, state, zip)",
-    "city": "string (city name)",
-    "excerpt": "string",
-  }
-]
 
 Example of correct cafeName format:
 ✓ "cafeName": "Iconik Coffee Roasters"

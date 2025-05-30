@@ -110,19 +110,19 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for coffee quality. Base ranges: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-8.2: Solid specialty cafe doing everything right, 8.3-9.7: Exceptional quality with unique offerings or perfect execution, 9.8-10: Among the absolute best in the city. IMPORTANT SCORING TRIGGERS: Start at 8.7+ if: cafe is consistently mentioned in 'best coffee in city' lists, has won regional/national awards, or is known for unique/innovative coffee programs. Add 0.3-0.5 points when: multiple independent sources praise coffee quality, cafe is considered a coffee destination, or roasts their own exceptional beans.",
+        description="6.0-6.9: Decent but inconsistent. 7.0-8.2: Solid specialty cafe. 8.3-9.7: Exceptional quality. 9.8-10: City's best. Add 0.3-0.5 for: consistent praise/destination status/house roasting.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for cafe atmosphere. Base ranges: 6.0-6.9: Basic but functional cafe space, 7.0-8.2: Well-designed with good ambiance, 8.3-9.7: Exceptional design that enhances the experience, 9.8-10: Iconic spaces that are unmatched in the city. IMPORTANT SCORING TRIGGERS: Start at 8.7+ if: space is frequently featured in design magazines, considered a landmark/destination for its design, or sets new trends in cafe design. Add 0.3-0.5 points when: multiple reviews specifically praise the space design, cafe has unique architectural elements, or creates an exceptional atmosphere that defines the neighborhood.",
+        description="6.0-6.9: Basic functional. 7.0-8.2: Great atmosphere. 8.3-9.7: Exceptional atmosphere. 9.8-10: Iconic space. Add 0.3-0.5 for: widespread praise/unique architecture/neighborhood icon.",
     )
     serviceScore: Dict[str, float] = Field(
         ...,
-        description="Score from 1–10 for service quality. Base ranges: 6.0-6.9: Professional but room for improvement, 7.0-7.9: Consistently good service with knowledgeable staff, 8.0-9.5: Outstanding service that elevates the experience, 9.6-10: Sets the standard for cafe service in the city. IMPORTANT SCORING TRIGGERS: Start at 8.7+ if: service is consistently praised across reviews, staff demonstrates exceptional coffee knowledge, or service enhances the overall experience notably. Add 0.3-0.5 points when: multiple reviews mention standout service experiences, staff goes above and beyond consistently, or service creates memorable experiences.",
+        description="6.0-6.9: Professional basic. 7.0-7.9: Consistently good. 8.0-9.5: Outstanding. 9.6-10: Sets standards. Add 0.3-0.5 for: standout service/staff excellence/memorable experiences.",
     )
     vibeScore: Dict[str, int] = Field(
         ...,
-        description="Score from 1–10 for cafe vibe/coolness factor. Note: This is NOT included in the overall score. Base ranges: 6.0-6.9: Pleasant but unremarkable, 7.0-8.2: Notable spot with character, 8.3-9.2: Influential place that draws people in, 9.3-10: Defines coffee culture for the city. IMPORTANT SCORING TRIGGERS: Start at 8.7+ if: cafe is considered a cultural institution, sets trends for the city's coffee scene, or is a must-visit destination. Add 0.3-0.5 points when: cafe has significant cultural impact, creates unique community experiences, or is consistently mentioned as a city highlight.",
+        description="NOT in overall score. 6.0-6.9: Pleasant. 7.0-8.2: Notable character. 8.3-9.2: Influential. 9.3-10: Culture-defining. Add 0.3-0.5 for: cultural impact/community hub/city highlight.",
     )
 
     vibeDescription: Dict[str, Document] = Field(
