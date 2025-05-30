@@ -8,7 +8,6 @@ Focus on:
 - Cafes with distinctive atmosphere or concept
 - Must be verified through recent reviews or official business listings
 - Must be primarily a coffee shop/cafe (not a hotel, restaurant, or other business type that happens to serve coffee)
-- When providing scores, use the entire scoring range and do not worry about creating an average score in the middle to be safe.
 
 Format your response as a list of JSON objects with the following structure:
 [
