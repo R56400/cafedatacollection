@@ -263,6 +263,9 @@ class LLMClient:
             },
         ]
 
+        # Add delay between requests to respect rate limits
+        await asyncio.sleep(2)  # 2 second delay between requests
+
         # Make the API call
         response = await self._make_openai_request(messages)
 
