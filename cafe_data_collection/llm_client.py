@@ -388,5 +388,15 @@ class LLMClient:
             return ContentfulCafeReviewPayload(entries=[entry])
 
         except (json.JSONDecodeError, KeyError) as e:
-            logger.error(f"Failed to parse LLM response: {e}")
+            logger.error(
+                f"Failed to parse LLM response for cafe '{cafe_info.get('cafeName', 'unknown')}': {e}"
+            )
+            logger.error(f"Full response length: {len(response)} characters")
+            # Save the problematic response to a file for inspection
+            error_file = Path(
+                f"error_response_{cafe_info.get('cafeName', 'unknown').replace(' ', '_')}.txt"
+            )
+            with open(error_file, "w") as f:
+                f.write(response)
+            logger.error(f"Problematic response saved to: {error_file}")
             raise ValueError(f"Invalid response format from LLM: {e}")
