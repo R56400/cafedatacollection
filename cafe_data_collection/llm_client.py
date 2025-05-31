@@ -275,21 +275,37 @@ class LLMClient:
 
         try:
             # Log the raw response for debugging
-            logger.debug("Raw response from LLM:")
+            logger.debug("\n=== START OF RAW RESPONSE ===")
             logger.debug(response)
+            logger.debug("=== END OF RAW RESPONSE ===\n")
 
-            # Try to parse the response line by line to identify where it breaks
+            # Log response details
+            logger.debug(f"Response length: {len(response)} characters")
+
+            # Split into lines and examine the problematic area
             lines = response.split("\n")
-            for i, line in enumerate(lines, 1):
-                try:
-                    json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                except Exception as e:
-                    logger.debug(f"Potential issue at line {i}: {line}")
-                    logger.debug(f"Error: {str(e)}")
+            logger.debug(f"Total lines in response: {len(lines)}")
 
-            # Parse the response as a complete ContentfulCafeReviewPayload
+            # Log lines around the error (lines 22-26 for context)
+            logger.debug("\n=== CONTEXT AROUND ERROR (lines 22-26) ===")
+            for i in range(max(0, 21), min(len(lines), 26)):
+                line_num = i + 1
+                logger.debug(
+                    f"Line {line_num}: {repr(lines[i])}"
+                )  # repr shows hidden characters
+
+                # If this is line 24, show more details
+                if line_num == 24:
+                    logger.debug(f"Line 24 character count: {len(lines[i])}")
+                    # Show the characters around column 4
+                    start_idx = max(0, 3 - 10)  # 10 chars before column 4
+                    end_idx = min(len(lines[i]), 3 + 10)  # 10 chars after column 4
+                    logger.debug(
+                        f"Characters around column 4: {repr(lines[i][start_idx:end_idx])}"
+                    )
+            logger.debug("=== END CONTEXT ===\n")
+
+            # Try to parse the response
             response_json = json.loads(response)
 
             # Extract the fields from the first entry
