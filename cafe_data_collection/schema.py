@@ -110,7 +110,7 @@ class Fields(BaseModel):
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
-        description="6.0-6.9: Decent but inconsistent. 7.0-8.2: Solid specialty cafe. 8.3-9.7: Exceptional quality. 9.8-10: City's best. Add 0.3-0.5 for: consistent praise/destination status/house roasting.",
+        description="Score from 1–10 for coffee quality. Consider: 6.0-6.9: Decent specialty coffee but inconsistent, 7.0-8.2: Solid specialty cafe doing everything right, 8.3-9.7: Exceptional quality with unique offerings or perfect execution, 9.8-10: Among the absolute best in the city. Use the full range of the score, and don't just bias to round numbers. If a cafe is consitntly mentioned at a top spot, add 0.3-0.5 points.",
     )
     atmosphereScore: Dict[str, float] = Field(
         ...,
