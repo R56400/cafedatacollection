@@ -271,6 +271,21 @@ class LLMClient:
             raise ValueError("Failed to get response from OpenAI API")
 
         try:
+            # Log the raw response for debugging
+            logger.debug("Raw response from LLM:")
+            logger.debug(response)
+
+            # Try to parse the response line by line to identify where it breaks
+            lines = response.split("\n")
+            for i, line in enumerate(lines, 1):
+                try:
+                    json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                except Exception as e:
+                    logger.debug(f"Potential issue at line {i}: {line}")
+                    logger.debug(f"Error: {str(e)}")
+
             # Parse the response as a complete ContentfulCafeReviewPayload
             response_json = json.loads(response)
 
