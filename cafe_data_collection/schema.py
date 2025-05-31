@@ -122,7 +122,7 @@ class Fields(BaseModel):
     )
     vibeScore: Dict[str, int] = Field(
         ...,
-        description="NOT in overall score. 6.0-6.9: Pleasant. 7.0-8.2: Notable character. 8.3-9.2: Influential. 9.3-10: Culture-defining. Add 0.3-0.5 for: cultural impact/community hub/city highlight.",
+        description="NOT in overall score. Integer from 6-10. 6-7: Pleasant. 8-9: Notable character. 9-10: Culture-defining.",
     )
 
     vibeDescription: Dict[str, Document] = Field(
