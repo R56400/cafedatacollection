@@ -1,6 +1,5 @@
 import asyncio
 import json
-import os
 import time
 from datetime import date
 from pathlib import Path
@@ -28,73 +27,6 @@ from .schema import (
 from .utils.logging import setup_logger
 
 logger = setup_logger(__name__)
-
-
-def _build_enrichment_prompt_from_schema() -> str:
-    """Build the enrichment prompt dynamically from the Fields schema."""
-    # Get scoring field descriptions from the schema
-    schema = Fields.schema()
-
-    # Extract scoring guidelines from field descriptions
-    scoring_guidelines = []
-    score_fields = [
-        "overallScore",
-        "coffeeScore",
-        "atmosphereScore",
-        "serviceScore",
-        "vibeScore",
-    ]
-    for field in score_fields:
-        if (
-            field in schema["properties"]
-            and "description" in schema["properties"][field]
-        ):
-            description = schema["properties"][field]["description"]
-            scoring_guidelines.append(f"- {field}: {description}")
-
-    guidelines_text = (
-        "\n".join(scoring_guidelines)
-        if scoring_guidelines
-        else "Use appropriate scoring based on cafe quality."
-    )
-
-    return (
-        "Create a detailed review in valid JSON format. The response must be a SINGLE JSON object with this exact structure:\n\n"
-        "{\n"
-        '  "entries": [{\n'
-        '    "sys": {"contentType": {"sys": {"type": "Link", "linkType": "ContentType", "id": "cafeReview"}}},\n'
-        '    "fields": {\n'
-        '      "cafeName": {"en-US": "NAME"},\n'
-        '      "authorName": {"en-US": "Chris Jordan"},\n'
-        '      "publishDate": {"en-US": "YYYY-MM-DD"},\n'
-        '      "slug": {"en-US": "cafe-name-street"},\n'
-        '      "excerpt": {"en-US": "One sentence summary"},\n'
-        '      "instagramLink": {"en-US": "https://instagram.com/cafe"},\n'
-        '      "facebookLink": {"en-US": "https://facebook.com/cafe"},\n'
-        '      "overallScore": {"en-US": 8.2},\n'
-        '      "coffeeScore": {"en-US": 8.1},\n'
-        '      "atmosphereScore": {"en-US": 8.4},\n'
-        '      "serviceScore": {"en-US": 8.0},\n'
-        '      "vibeScore": {"en-US": 8},\n'
-        '      "vibeDescription": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3 sentences about vibe", "marks": [], "data": {}}]}]}},\n'
-        '      "theStory": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-5 sentences about story", "marks": [], "data": {}}]}]}},\n'
-        '      "craftExpertise": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "5 sentences about craft", "marks": [], "data": {}}]}]}},\n'
-        '      "setsApart": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-4 sentences about uniqueness", "marks": [], "data": {}}]}]}},\n'
-        '      "cafeAddress": {"en-US": "FULL_ADDRESS"},\n'
-        '      "cityReference": {"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_ID"}}}\n'
-        "    }\n"
-        "  }]\n"
-        "}\n\n"
-        f"SCORING GUIDELINES (Use actual numbers, not the placeholders above):\n"
-        f"{guidelines_text}\n\n"
-        "IMPORTANT:\n"
-        "1. Response must be VALID JSON\n"
-        "2. Replace example scores above with actual scores for this specific cafe\n"
-        "3. Generate unique, realistic scores - DO NOT copy the example scores (8.2, 8.1, etc.)\n"
-        "4. Use the scoring guidelines to determine appropriate scores for this cafe\n"
-        "5. vibeScore must be a whole number, other scores can have one decimal place\n"
-        "6. For social media links, provide simple URL strings - they will be converted to the proper format automatically"
-    )
 
 
 class LLMClient:
@@ -212,6 +144,101 @@ class LLMClient:
                 logger.debug(f"Error type: {type(e).__name__}")
                 raise
 
+    async def _make_structured_openai_request(
+        self, messages: list[dict[str, str]], response_format
+    ) -> any:
+        """Make a structured output request using OpenAI's beta parse endpoint."""
+        retries = 0
+        while retries < MAX_RETRIES:
+            try:
+                logger.debug("Preparing structured OpenAI API request")
+                logger.debug(
+                    f"Request details: model={self.model}, temperature={self.temperature}"
+                )
+
+                # Respect rate limits before making request
+                self._respect_rate_limit()
+
+                # Use the new structured outputs format
+                async with httpx.AsyncClient() as client:
+                    # Get the JSON schema from the Pydantic model
+                    schema = response_format.model_json_schema()
+
+                    response = await client.post(
+                        self.base_url,
+                        headers={
+                            "Authorization": f"Bearer {self.api_key}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": self.model,
+                            "messages": messages,
+                            "temperature": self.temperature,
+                            "response_format": {
+                                "type": "json_schema",
+                                "json_schema": {
+                                    "name": schema.get("title", "response"),
+                                    "schema": schema,
+                                    "strict": True,
+                                },
+                            },
+                        },
+                        timeout=90.0,
+                    )
+
+                    logger.debug(f"Response status code: {response.status_code}")
+
+                    if response.status_code == 401:
+                        logger.error("OpenAI API key is invalid")
+                        raise ValueError(
+                            "Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env"
+                        )
+
+                    response.raise_for_status()
+                    result = response.json()
+
+                    if "choices" not in result or not result["choices"]:
+                        logger.error("No choices in API response")
+                        return None
+
+                    message = result["choices"][0]["message"]
+
+                    # Check for refusal
+                    if "refusal" in message and message["refusal"]:
+                        logger.error(
+                            f"OpenAI refused the request: {message['refusal']}"
+                        )
+                        raise ValueError(
+                            f"OpenAI refused the request: {message['refusal']}"
+                        )
+
+                    # Parse the structured response
+                    content = message["content"]
+                    parsed_data = json.loads(content)
+                    validated_response = response_format(**parsed_data)
+
+                    logger.info(
+                        "Successfully received structured response from OpenAI API"
+                    )
+                    return validated_response
+
+            except (httpx.ReadTimeout, httpx.ConnectTimeout) as e:
+                retries += 1
+                if retries == MAX_RETRIES:
+                    logger.error(
+                        f"Max retries ({MAX_RETRIES}) reached. Last error: {str(e)}"
+                    )
+                    raise
+                wait_time = RETRY_DELAY * (2 ** (retries - 1))
+                logger.warning(
+                    f"Request timed out. Retrying in {wait_time} seconds... (Attempt {retries + 1}/{MAX_RETRIES})"
+                )
+                await asyncio.sleep(wait_time)
+            except Exception as e:
+                logger.error(f"Unexpected error occurred: {str(e)}")
+                logger.debug(f"Error type: {type(e).__name__}")
+                raise
+
     async def get_cafes_for_city(self, city: str, num_cafes: int = 5) -> List[dict]:
         logger.info(f"Getting {num_cafes} cafes for city: {city}")
 
@@ -257,137 +284,83 @@ class LLMClient:
             raise
 
     async def enrich_cafe_details(self, cafe_info: dict) -> ContentfulCafeReviewPayload:
-        """Enrich basic cafe information with detailed content.
+        """Enrich basic cafe information with detailed content using structured outputs.
 
         Args:
             cafe_info: Dictionary containing basic cafe information
 
         Returns:
-            ContentfulCafeReviewPayload object containing enriched cafe information matching the Contentful structure
+            ContentfulCafeReviewPayload object containing enriched cafe information
         """
-        # Build the prompt from the schema
-        enrichment_requirements = _build_enrichment_prompt_from_schema()
+
+        # Create scoring guidelines from the schema
+        schema = Fields.schema()
+        scoring_guidelines = []
+        score_fields = [
+            "overallScore",
+            "coffeeScore",
+            "atmosphereScore",
+            "serviceScore",
+            "vibeScore",
+        ]
+
+        for field in score_fields:
+            if (
+                field in schema["properties"]
+                and "description" in schema["properties"][field]
+            ):
+                description = schema["properties"][field]["description"]
+                scoring_guidelines.append(f"- {field}: {description}")
+
+        guidelines_text = (
+            "\n".join(scoring_guidelines)
+            if scoring_guidelines
+            else "Use appropriate scoring based on cafe quality."
+        )
 
         # Prepare messages for the API call
         messages = [
             {
                 "role": "system",
-                "content": "You are a coffee expert creating detailed, engaging content about cafes. Focus on accuracy and specificity in your reviews.",
+                "content": f"""You are a coffee expert creating detailed, engaging content about cafes. 
+                
+SCORING GUIDELINES:
+{guidelines_text}
+
+CONTENT GUIDELINES:
+- Write naturally and engagingly, as if describing the cafe to friends
+- Be specific and detailed in your descriptions
+- Focus on what makes each cafe unique
+- Use the full scoring range appropriately
+- Generate realistic scores based on the cafe's reputation and characteristics""",
             },
             {
                 "role": "user",
-                "content": (
-                    f"Create a detailed review for {cafe_info['cafeName']} in {cafe_info['city']}.\n"
-                    f"Brief description: {cafe_info.get('excerpt', '')}\n"
-                    f"Address: {cafe_info['cafeAddress']}\n"
-                    f"City Reference for context: {cafe_info['cityReference']}\n\n"
-                    f"{enrichment_requirements}\n\n"
-                    "Provide the response as a single JSON object. Do not include any markdown formatting or additional text."
-                ),
+                "content": f"""Create a comprehensive review for {cafe_info["cafeName"]} located at {cafe_info["cafeAddress"]} in {cafe_info["city"]}.
+
+Brief description: {cafe_info.get("excerpt", "")}
+
+Requirements:
+- Use today's date ({date.today().strftime("%Y-%m-%d")}) as the publish date
+- Set authorName to "Chris Jordan"
+- Only use open cafes, not closed ones
+- Generate realistic, varied scores (don't use placeholder scores like 8.2, 8.1, etc.)
+- Create engaging, detailed content for all text fields
+- Use the city reference ID: {cafe_info["cityReference"]}
+- Include the place ID: {cafe_info["placeId"]}
+- Use coordinates: lat={cafe_info["latitude"]}, lon={cafe_info["longitude"]}
+- Address: {cafe_info["cafeAddress"]}""",
             },
         ]
 
         # Add delay between requests to respect rate limits
-        await asyncio.sleep(2)  # 2 second delay between requests
+        await asyncio.sleep(2)
 
-        # Make the API call
-        response = await self._make_openai_request(messages)
-
-        if not response:
-            logger.error("No response received from OpenAI API")
-            raise ValueError("Failed to get response from OpenAI API")
-
+        # Make the structured API call
         try:
-            # Try to parse the response
-            response_json = json.loads(response)
-
-            # Extract the fields from the first entry
-            fields = response_json["entries"][0]["fields"]
-
-            # Set today's date as the publish date
-            fields["publishDate"] = {"en-US": date.today().strftime("%Y-%m-%d")}
-
-            # Set the placeId from our geocoding data
-            fields["placeId"] = {"en-US": cafe_info["placeId"]}
-
-            # Set the coordinates from our geocoding data
-            fields["cafeLatLon"] = {
-                "en-US": {"lat": cafe_info["latitude"], "lon": cafe_info["longitude"]}
-            }
-
-            # Ensure proper structure for social media links and city reference
-            if "instagramLink" in fields and isinstance(
-                fields["instagramLink"].get("en-US"), str
-            ):
-                url = fields["instagramLink"]["en-US"]
-                fields["instagramLink"]["en-US"] = {
-                    "nodeType": "document",
-                    "data": {},
-                    "content": [
-                        {
-                            "nodeType": "paragraph",
-                            "data": {},
-                            "content": [
-                                {
-                                    "nodeType": "hyperlink",
-                                    "data": {"uri": url},
-                                    "content": [
-                                        {
-                                            "nodeType": "text",
-                                            "value": "Instagram",
-                                            "marks": [],
-                                            "data": {},
-                                        }
-                                    ],
-                                }
-                            ],
-                        }
-                    ],
-                }
-
-            if "facebookLink" in fields and isinstance(
-                fields["facebookLink"].get("en-US"), str
-            ):
-                url = fields["facebookLink"]["en-US"]
-                fields["facebookLink"]["en-US"] = {
-                    "nodeType": "document",
-                    "data": {},
-                    "content": [
-                        {
-                            "nodeType": "paragraph",
-                            "data": {},
-                            "content": [
-                                {
-                                    "nodeType": "hyperlink",
-                                    "data": {"uri": url},
-                                    "content": [
-                                        {
-                                            "nodeType": "text",
-                                            "value": "Facebook",
-                                            "marks": [],
-                                            "data": {},
-                                        }
-                                    ],
-                                }
-                            ],
-                        }
-                    ],
-                }
-
-            if "cityReference" in fields and isinstance(
-                fields["cityReference"].get("en-US"), str
-            ):
-                city_reference_id = cafe_info["cityReference"]
-                fields["cityReference"]["en-US"] = {
-                    "sys": {
-                        "type": "Link",
-                        "linkType": "Entry",
-                        "id": city_reference_id,
-                    }
-                }
-
-            # Validate fields
-            validated_fields = Fields(**fields)
+            fields_response = await self._make_structured_openai_request(
+                messages, Fields
+            )
 
             # Create the complete Entry object
             entry = Entry(
@@ -398,35 +371,14 @@ class LLMClient:
                         )
                     )
                 ),
-                fields=validated_fields,
+                fields=fields_response,
             )
 
             # Create and return the complete payload
             return ContentfulCafeReviewPayload(entries=[entry])
 
-        except (json.JSONDecodeError, KeyError) as e:
+        except Exception as e:
             logger.error(
-                f"Failed to parse LLM response for cafe '{cafe_info.get('cafeName', 'unknown')}': {e}"
+                f"Failed to enrich cafe details for '{cafe_info.get('cafeName', 'unknown')}': {e}"
             )
-            logger.error(f"Full response length: {len(response)} characters")
-
-            # Save the problematic response to a file for debugging
-            debug_dir = "debug_responses"
-            if not os.path.exists(debug_dir):
-                os.makedirs(debug_dir)
-
-            cafe_name = (
-                cafe_info.get("cafeName", "unknown").replace("/", "_").replace(" ", "_")
-            )
-            debug_file = f"{debug_dir}/failed_response_{cafe_name}.json"
-            try:
-                with open(debug_file, "w") as f:
-                    f.write(response)
-                logger.error(f"Problematic response saved to: {debug_file}")
-            except Exception as save_error:
-                logger.error(f"Failed to save debug response: {save_error}")
-
-            # Also log the first 1000 characters to see the structure
-            logger.error(f"Response start: {response[:1000]}")
-
-            raise ValueError(f"Invalid response format from LLM: {e}")
+            raise ValueError(f"Failed to enrich cafe details: {e}")
