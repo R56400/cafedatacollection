@@ -274,30 +274,22 @@ class LLMClient:
             raise ValueError("Failed to get response from OpenAI API")
 
         try:
-            # Log the raw response for debugging
-            logger.error("\n\n=== START OF RAW RESPONSE (as repr) ===")
-            logger.error(repr(response))  # Use repr to see all special characters
-            logger.error("=== END OF RAW RESPONSE ===\n")
-
-            # Log response details
-            logger.error(f"Response length: {len(response)} characters")
-
-            # Try cleaning the response before parsing
-            cleaned_response = response.strip()  # Remove leading/trailing whitespace
-
-            # Log the cleaned response
-            logger.error("\n=== CLEANED RESPONSE (as repr) ===")
-            logger.error(repr(cleaned_response))
-            logger.error("=== END CLEANED RESPONSE ===\n")
-
             # Try to parse the response
-            response_json = json.loads(cleaned_response)
+            response_json = json.loads(response)
 
             # Extract the fields from the first entry
             fields = response_json["entries"][0]["fields"]
 
             # Set today's date as the publish date
             fields["publishDate"] = {"en-US": date.today().strftime("%Y-%m-%d")}
+
+            # Set the placeId from our geocoding data
+            fields["placeId"] = {"en-US": cafe_info["placeId"]}
+
+            # Set the coordinates from our geocoding data
+            fields["cafeLatLon"] = {
+                "en-US": {"lat": cafe_info["latitude"], "lon": cafe_info["longitude"]}
+            }
 
             # Ensure proper structure for social media links and city reference
             if "instagramLink" in fields and isinstance(
@@ -369,14 +361,6 @@ class LLMClient:
                         "id": city_reference_id,
                     }
                 }
-
-            # Set the placeId from our geocoding data
-            fields["placeId"] = {"en-US": cafe_info["placeId"]}
-
-            # Set the coordinates from our geocoding data
-            fields["cafeLatLon"] = {
-                "en-US": {"lat": cafe_info["latitude"], "lon": cafe_info["longitude"]}
-            }
 
             # Validate fields
             validated_fields = Fields(**fields)
