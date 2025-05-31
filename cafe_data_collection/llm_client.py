@@ -70,11 +70,11 @@ def _build_enrichment_prompt_from_schema() -> str:
         '      "excerpt": {"en-US": "One sentence summary"},\n'
         '      "instagramLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://instagram.com/cafe"}, "content": [{"nodeType": "text", "value": "Instagram", "marks": [], "data": {}}]}]}]}},\n'
         '      "facebookLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://facebook.com/cafe"}, "content": [{"nodeType": "text", "value": "Facebook", "marks": [], "data": {}}]}]}]}},\n'
-        '      "overallScore": {"en-US": OVERALL_SCORE_NUMBER},\n'
-        '      "coffeeScore": {"en-US": COFFEE_SCORE_NUMBER},\n'
-        '      "atmosphereScore": {"en-US": ATMOSPHERE_SCORE_NUMBER},\n'
-        '      "serviceScore": {"en-US": SERVICE_SCORE_NUMBER},\n'
-        '      "vibeScore": {"en-US": VIBE_SCORE_NUMBER},\n'
+        '      "overallScore": {"en-US": 8.2},\n'
+        '      "coffeeScore": {"en-US": 8.1},\n'
+        '      "atmosphereScore": {"en-US": 8.4},\n'
+        '      "serviceScore": {"en-US": 8.0},\n'
+        '      "vibeScore": {"en-US": 8},\n'
         '      "vibeDescription": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3 sentences about vibe", "marks": [], "data": {}}]}]}},\n'
         '      "theStory": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-5 sentences about story", "marks": [], "data": {}}]}]}},\n'
         '      "craftExpertise": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "5 sentences about craft", "marks": [], "data": {}}]}]}},\n'
@@ -88,10 +88,10 @@ def _build_enrichment_prompt_from_schema() -> str:
         f"{guidelines_text}\n\n"
         "IMPORTANT:\n"
         "1. Response must be VALID JSON\n"
-        "2. Replace ALL CAPS placeholders with actual values\n"
-        "3. Generate unique, realistic scores for this specific cafe\n"
-        "4. Use the full scoring range - don't default to generic scores\n"
-        "5. Scores should reflect the cafe's actual quality and reputation"
+        "2. Replace example scores above with actual scores for this specific cafe\n"
+        "3. Generate unique, realistic scores - DO NOT copy the example scores (8.2, 8.1, etc.)\n"
+        "4. Use the scoring guidelines to determine appropriate scores for this cafe\n"
+        "5. vibeScore must be a whole number, other scores can have one decimal place"
     )
 
 
