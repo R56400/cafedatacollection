@@ -275,38 +275,23 @@ class LLMClient:
 
         try:
             # Log the raw response for debugging
-            logger.error("\n\n=== START OF RAW RESPONSE ===")
-            logger.error(response)
+            logger.error("\n\n=== START OF RAW RESPONSE (as repr) ===")
+            logger.error(repr(response))  # Use repr to see all special characters
             logger.error("=== END OF RAW RESPONSE ===\n")
 
             # Log response details
             logger.error(f"Response length: {len(response)} characters")
 
-            # Split into lines and examine the problematic area
-            lines = response.split("\n")
-            logger.error(f"Total lines in response: {len(lines)}")
+            # Try cleaning the response before parsing
+            cleaned_response = response.strip()  # Remove leading/trailing whitespace
 
-            # Log lines around the error (lines 22-26 for context)
-            logger.error("\n=== CONTEXT AROUND ERROR (lines 22-26) ===")
-            for i in range(max(0, 21), min(len(lines), 26)):
-                line_num = i + 1
-                logger.error(
-                    f"Line {line_num}: {repr(lines[i])}"
-                )  # repr shows hidden characters
-
-                # If this is line 24, show more details
-                if line_num == 24:
-                    logger.error(f"Line 24 character count: {len(lines[i])}")
-                    # Show the characters around column 4
-                    start_idx = max(0, 3 - 10)  # 10 chars before column 4
-                    end_idx = min(len(lines[i]), 3 + 10)  # 10 chars after column 4
-                    logger.error(
-                        f"Characters around column 4: {repr(lines[i][start_idx:end_idx])}"
-                    )
-            logger.error("=== END CONTEXT ===\n")
+            # Log the cleaned response
+            logger.error("\n=== CLEANED RESPONSE (as repr) ===")
+            logger.error(repr(cleaned_response))
+            logger.error("=== END CLEANED RESPONSE ===\n")
 
             # Try to parse the response
-            response_json = json.loads(response)
+            response_json = json.loads(cleaned_response)
 
             # Extract the fields from the first entry
             fields = response_json["entries"][0]["fields"]
