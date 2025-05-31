@@ -42,6 +42,8 @@ def _build_enrichment_prompt_from_schema() -> str:
         '      "publishDate": {"en-US": "YYYY-MM-DD"},\n'
         '      "slug": {"en-US": "cafe-name-street"},\n'
         '      "excerpt": {"en-US": "One sentence summary"},\n'
+        '      "instagramLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://instagram.com/cafe"}, "content": [{"nodeType": "text", "value": "Instagram", "marks": [], "data": {}}]}]}]}},\n'
+        '      "facebookLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://facebook.com/cafe"}, "content": [{"nodeType": "text", "value": "Facebook", "marks": [], "data": {}}]}]}]}},\n'
         '      "overallScore": {"en-US": 8.5},\n'
         '      "coffeeScore": {"en-US": 8.5},\n'
         '      "atmosphereScore": {"en-US": 8.5},\n'
@@ -50,7 +52,9 @@ def _build_enrichment_prompt_from_schema() -> str:
         '      "vibeDescription": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3 sentences about vibe", "marks": [], "data": {}}]}]}},\n'
         '      "theStory": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-5 sentences about story", "marks": [], "data": {}}]}]}},\n'
         '      "craftExpertise": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "5 sentences about craft", "marks": [], "data": {}}]}]}},\n'
-        '      "setsApart": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-4 sentences about uniqueness", "marks": [], "data": {}}]}]}}\n'
+        '      "setsApart": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-4 sentences about uniqueness", "marks": [], "data": {}}]}]}},\n'
+        '      "cafeAddress": {"en-US": "FULL_ADDRESS"},\n'
+        '      "cityReference": {"en-US": {"sys": {"type": "Link", "linkType": "Entry", "id": "CITY_ID"}}}\n'
         "    }\n"
         "  }]\n"
         "}\n\n"
@@ -65,6 +69,7 @@ def _build_enrichment_prompt_from_schema() -> str:
         "2. Keep the exact structure shown above\n"
         "3. Do not add any fields\n"
         "4. Do not add any text outside the JSON\n"
+        "5. Use real social media links if known, otherwise leave empty"
     )
 
 
