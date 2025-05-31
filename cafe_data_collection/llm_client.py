@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 from datetime import date
 from pathlib import Path
@@ -68,8 +69,8 @@ def _build_enrichment_prompt_from_schema() -> str:
         '      "publishDate": {"en-US": "YYYY-MM-DD"},\n'
         '      "slug": {"en-US": "cafe-name-street"},\n'
         '      "excerpt": {"en-US": "One sentence summary"},\n'
-        '      "instagramLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://instagram.com/cafe"}, "content": [{"nodeType": "text", "value": "Instagram", "marks": [], "data": {}}]}]}]}},\n'
-        '      "facebookLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://facebook.com/cafe"}, "content": [{"nodeType": "text", "value": "Facebook", "marks": [], "data": {}}]}]}]}},\n'
+        '      "instagramLink": {"en-US": "https://instagram.com/cafe"},\n'
+        '      "facebookLink": {"en-US": "https://facebook.com/cafe"},\n'
         '      "overallScore": {"en-US": 8.2},\n'
         '      "coffeeScore": {"en-US": 8.1},\n'
         '      "atmosphereScore": {"en-US": 8.4},\n'
@@ -91,7 +92,8 @@ def _build_enrichment_prompt_from_schema() -> str:
         "2. Replace example scores above with actual scores for this specific cafe\n"
         "3. Generate unique, realistic scores - DO NOT copy the example scores (8.2, 8.1, etc.)\n"
         "4. Use the scoring guidelines to determine appropriate scores for this cafe\n"
-        "5. vibeScore must be a whole number, other scores can have one decimal place"
+        "5. vibeScore must be a whole number, other scores can have one decimal place\n"
+        "6. For social media links, provide simple URL strings - they will be converted to the proper format automatically"
     )
 
 
@@ -407,4 +409,24 @@ class LLMClient:
                 f"Failed to parse LLM response for cafe '{cafe_info.get('cafeName', 'unknown')}': {e}"
             )
             logger.error(f"Full response length: {len(response)} characters")
+
+            # Save the problematic response to a file for debugging
+            debug_dir = "debug_responses"
+            if not os.path.exists(debug_dir):
+                os.makedirs(debug_dir)
+
+            cafe_name = (
+                cafe_info.get("cafeName", "unknown").replace("/", "_").replace(" ", "_")
+            )
+            debug_file = f"{debug_dir}/failed_response_{cafe_name}.json"
+            try:
+                with open(debug_file, "w") as f:
+                    f.write(response)
+                logger.error(f"Problematic response saved to: {debug_file}")
+            except Exception as save_error:
+                logger.error(f"Failed to save debug response: {save_error}")
+
+            # Also log the first 1000 characters to see the structure
+            logger.error(f"Response start: {response[:1000]}")
+
             raise ValueError(f"Invalid response format from LLM: {e}")

@@ -54,7 +54,7 @@ class PlacesClient:
             city: The city (optional but recommended).
 
         Returns:
-            The Place ID string if found, otherwise None.
+            The Place ID string if found and open, otherwise None.
         """
         if not self.api_key:
             logger.warning("Google Maps API key not configured for Places API.")
@@ -74,7 +74,7 @@ class PlacesClient:
         headers = {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": self.api_key,
-            "X-Goog-FieldMask": "places.id",  # Request only the place ID
+            "X-Goog-FieldMask": "places.id,places.businessStatus",  # Request place ID and business status
         }
 
         payload = json.dumps({"textQuery": text_query})
@@ -92,8 +92,25 @@ class PlacesClient:
                 # Extract the first place ID if available
                 places = data.get("places", [])
                 if places and isinstance(places, list) and "id" in places[0]:
-                    place_id = places[0]["id"]
-                    logger.debug(f"Found Place ID: {place_id} for query: {text_query}")
+                    place = places[0]
+                    place_id = place["id"]
+                    business_status = place.get("businessStatus", "OPERATIONAL")
+
+                    # Check if the business is permanently closed
+                    if business_status == "CLOSED_PERMANENTLY":
+                        logger.warning(
+                            f"Place {text_query} is permanently closed. Skipping."
+                        )
+                        return None
+                    elif business_status == "CLOSED_TEMPORARILY":
+                        logger.warning(
+                            f"Place {text_query} is temporarily closed. Skipping."
+                        )
+                        return None
+
+                    logger.debug(
+                        f"Found Place ID: {place_id} for query: {text_query} (Status: {business_status})"
+                    )
                     return place_id
                 else:
                     logger.warning(
