@@ -31,6 +31,32 @@ logger = setup_logger(__name__)
 
 def _build_enrichment_prompt_from_schema() -> str:
     """Build the enrichment prompt dynamically from the Fields schema."""
+    # Get scoring field descriptions from the schema
+    schema = Fields.schema()
+
+    # Extract scoring guidelines from field descriptions
+    scoring_guidelines = []
+    score_fields = [
+        "overallScore",
+        "coffeeScore",
+        "atmosphereScore",
+        "serviceScore",
+        "vibeScore",
+    ]
+    for field in score_fields:
+        if (
+            field in schema["properties"]
+            and "description" in schema["properties"][field]
+        ):
+            description = schema["properties"][field]["description"]
+            scoring_guidelines.append(f"- {field}: {description}")
+
+    guidelines_text = (
+        "\n".join(scoring_guidelines)
+        if scoring_guidelines
+        else "Use appropriate scoring based on cafe quality."
+    )
+
     return (
         "Create a detailed review in valid JSON format. The response must be a SINGLE JSON object with this exact structure:\n\n"
         "{\n"
@@ -44,11 +70,11 @@ def _build_enrichment_prompt_from_schema() -> str:
         '      "excerpt": {"en-US": "One sentence summary"},\n'
         '      "instagramLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://instagram.com/cafe"}, "content": [{"nodeType": "text", "value": "Instagram", "marks": [], "data": {}}]}]}]}},\n'
         '      "facebookLink": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "hyperlink", "data": {"uri": "https://facebook.com/cafe"}, "content": [{"nodeType": "text", "value": "Facebook", "marks": [], "data": {}}]}]}]}},\n'
-        '      "overallScore": {"en-US": 8.5},\n'
-        '      "coffeeScore": {"en-US": 8.5},\n'
-        '      "atmosphereScore": {"en-US": 8.5},\n'
-        '      "serviceScore": {"en-US": 8.5},\n'
-        '      "vibeScore": {"en-US": 8},\n'
+        '      "overallScore": {"en-US": OVERALL_SCORE_NUMBER},\n'
+        '      "coffeeScore": {"en-US": COFFEE_SCORE_NUMBER},\n'
+        '      "atmosphereScore": {"en-US": ATMOSPHERE_SCORE_NUMBER},\n'
+        '      "serviceScore": {"en-US": SERVICE_SCORE_NUMBER},\n'
+        '      "vibeScore": {"en-US": VIBE_SCORE_NUMBER},\n'
         '      "vibeDescription": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3 sentences about vibe", "marks": [], "data": {}}]}]}},\n'
         '      "theStory": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "3-5 sentences about story", "marks": [], "data": {}}]}]}},\n'
         '      "craftExpertise": {"en-US": {"nodeType": "document", "data": {}, "content": [{"nodeType": "paragraph", "data": {}, "content": [{"nodeType": "text", "value": "5 sentences about craft", "marks": [], "data": {}}]}]}},\n'
@@ -58,18 +84,14 @@ def _build_enrichment_prompt_from_schema() -> str:
         "    }\n"
         "  }]\n"
         "}\n\n"
-        "SCORING GUIDELINES:\n"
-        "- Overall: Average of coffee, atmosphere, and service scores (not vibe)\n"
-        "- Coffee (6.0-10): Quality, consistency, expertise\n"
-        "- Atmosphere (6.0-10): Design, comfort, ambiance\n"
-        "- Service (6.0-10): Staff knowledge, hospitality\n"
-        "- Vibe (6-10, whole numbers): Cultural impact\n\n"
+        f"SCORING GUIDELINES (Use actual numbers, not the placeholders above):\n"
+        f"{guidelines_text}\n\n"
         "IMPORTANT:\n"
         "1. Response must be VALID JSON\n"
-        "2. Keep the exact structure shown above\n"
-        "3. Do not add any fields\n"
-        "4. Do not add any text outside the JSON\n"
-        "5. Use real social media links if known, otherwise leave empty"
+        "2. Replace ALL CAPS placeholders with actual values\n"
+        "3. Generate unique, realistic scores for this specific cafe\n"
+        "4. Use the full scoring range - don't default to generic scores\n"
+        "5. Scores should reflect the cafe's actual quality and reputation"
     )
 
 
