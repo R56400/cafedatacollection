@@ -275,35 +275,35 @@ class LLMClient:
 
         try:
             # Log the raw response for debugging
-            logger.debug("\n=== START OF RAW RESPONSE ===")
-            logger.debug(response)
-            logger.debug("=== END OF RAW RESPONSE ===\n")
+            logger.error("\n\n=== START OF RAW RESPONSE ===")
+            logger.error(response)
+            logger.error("=== END OF RAW RESPONSE ===\n")
 
             # Log response details
-            logger.debug(f"Response length: {len(response)} characters")
+            logger.error(f"Response length: {len(response)} characters")
 
             # Split into lines and examine the problematic area
             lines = response.split("\n")
-            logger.debug(f"Total lines in response: {len(lines)}")
+            logger.error(f"Total lines in response: {len(lines)}")
 
             # Log lines around the error (lines 22-26 for context)
-            logger.debug("\n=== CONTEXT AROUND ERROR (lines 22-26) ===")
+            logger.error("\n=== CONTEXT AROUND ERROR (lines 22-26) ===")
             for i in range(max(0, 21), min(len(lines), 26)):
                 line_num = i + 1
-                logger.debug(
+                logger.error(
                     f"Line {line_num}: {repr(lines[i])}"
                 )  # repr shows hidden characters
 
                 # If this is line 24, show more details
                 if line_num == 24:
-                    logger.debug(f"Line 24 character count: {len(lines[i])}")
+                    logger.error(f"Line 24 character count: {len(lines[i])}")
                     # Show the characters around column 4
                     start_idx = max(0, 3 - 10)  # 10 chars before column 4
                     end_idx = min(len(lines[i]), 3 + 10)  # 10 chars after column 4
-                    logger.debug(
+                    logger.error(
                         f"Characters around column 4: {repr(lines[i][start_idx:end_idx])}"
                     )
-            logger.debug("=== END CONTEXT ===\n")
+            logger.error("=== END CONTEXT ===\n")
 
             # Try to parse the response
             response_json = json.loads(response)
