@@ -263,9 +263,6 @@ class LLMClient:
         Returns:
             ContentfulCafeReviewPayload object containing enriched cafe information matching the Contentful structure
         """
-        # Log the input data for debugging
-        logger.debug(f"Enriching cafe with data: {json.dumps(cafe_info, indent=2)}")
-
         # Build the prompt from the schema
         enrichment_requirements = _build_enrichment_prompt_from_schema()
 
@@ -299,10 +296,6 @@ class LLMClient:
             raise ValueError("Failed to get response from OpenAI API")
 
         try:
-            # Log the first and last 500 characters of the response
-            logger.error(f"Response first 500 chars: {repr(response[:500])}")
-            logger.error(f"Response last 500 chars: {repr(response[-500:])}")
-
             # Try to parse the response
             response_json = json.loads(response)
 
@@ -414,11 +407,4 @@ class LLMClient:
                 f"Failed to parse LLM response for cafe '{cafe_info.get('cafeName', 'unknown')}': {e}"
             )
             logger.error(f"Full response length: {len(response)} characters")
-            # Save the problematic response to a file for inspection
-            error_file = Path(
-                f"error_response_{cafe_info.get('cafeName', 'unknown').replace(' ', '_')}.txt"
-            )
-            with open(error_file, "w") as f:
-                f.write(response)
-            logger.error(f"Problematic response saved to: {error_file}")
             raise ValueError(f"Invalid response format from LLM: {e}")
