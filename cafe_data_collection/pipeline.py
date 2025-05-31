@@ -143,28 +143,58 @@ class CafePipeline:
         logger.info(f"Step 4: Enriching {len(cafes)} cafes in {city}...")
 
         enriched_entries = []
-        for cafe in cafes:
-            # Find Place ID first
-            place_id = await self.places_client.find_place_id(
-                name=cafe.get("cafeName"),
-                address=cafe.get("cafeAddress"),
-                city=cafe.get("city"),
-            )
+        failed_cafes = []
 
-            if not place_id:
-                logger.warning(
-                    f"Could not find Place ID for {cafe.get('cafeName', 'N/A')} at {cafe.get('cafeAddress', 'N/A')}. Skipping enrichment."
+        for i, cafe in enumerate(cafes):
+            try:
+                logger.info(
+                    f"Processing cafe {i + 1}/{len(cafes)}: {cafe.get('cafeName', 'N/A')}"
                 )
-                continue
 
-            cafe["placeId"] = place_id
+                # Find Place ID first
+                place_id = await self.places_client.find_place_id(
+                    name=cafe.get("cafeName"),
+                    address=cafe.get("cafeAddress"),
+                    city=cafe.get("city"),
+                )
 
-            # Now proceed with LLM enrichment using the cafe dict containing the placeId
-            enriched_cafe_result = await self.llm_client.enrich_cafe_details(cafe)
+                if not place_id:
+                    logger.warning(
+                        f"Could not find Place ID for {cafe.get('cafeName', 'N/A')} at {cafe.get('cafeAddress', 'N/A')}. Skipping enrichment."
+                    )
+                    failed_cafes.append(
+                        {
+                            "cafe": cafe.get("cafeName", "N/A"),
+                            "reason": "No Place ID found",
+                        }
+                    )
+                    continue
 
-            enriched_entries.extend(enriched_cafe_result.entries)
+                cafe["placeId"] = place_id
 
-        # Create a single payload with all entries
+                # Now proceed with LLM enrichment using the cafe dict containing the placeId
+                enriched_cafe_result = await self.llm_client.enrich_cafe_details(cafe)
+                enriched_entries.extend(enriched_cafe_result.entries)
+
+                logger.info(f"Successfully enriched {cafe.get('cafeName', 'N/A')}")
+
+            except Exception as e:
+                logger.error(
+                    f"Failed to enrich {cafe.get('cafeName', 'N/A')}: {str(e)}"
+                )
+                failed_cafes.append(
+                    {"cafe": cafe.get("cafeName", "N/A"), "reason": str(e)}
+                )
+                continue  # Continue with next cafe instead of stopping
+
+        # Log summary
+        logger.info(f"Successfully enriched {len(enriched_entries)} cafes")
+        if failed_cafes:
+            logger.warning(f"Failed to enrich {len(failed_cafes)} cafes:")
+            for failed in failed_cafes:
+                logger.warning(f"  - {failed['cafe']}: {failed['reason']}")
+
+        # Create a single payload with all successful entries
         combined_payload = {
             "entries": [entry.model_dump() for entry in enriched_entries]
         }
