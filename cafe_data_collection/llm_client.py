@@ -237,6 +237,17 @@ class LLMClient:
             except Exception as e:
                 logger.error(f"Unexpected error occurred: {str(e)}")
                 logger.debug(f"Error type: {type(e).__name__}")
+
+                # Log detailed error info for 400 errors
+                if hasattr(e, "response") and e.response.status_code == 400:
+                    try:
+                        error_details = e.response.json()
+                        logger.error(
+                            f"400 Error details: {json.dumps(error_details, indent=2)}"
+                        )
+                    except:
+                        logger.error(f"400 Error response body: {e.response.text}")
+
                 raise
 
     async def get_cafes_for_city(self, city: str, num_cafes: int = 5) -> List[dict]:
