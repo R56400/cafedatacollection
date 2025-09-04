@@ -106,7 +106,7 @@ class Fields(BaseModel):
 
     overallScore: Dict[str, float] = Field(
         ...,
-        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, serviceScore and foodScore. It should only be to the 1 decimal place.",
+        description="Overall score from 1–10. This is the average of the coffeeScore, atmosphereScore, and serviceScore. It should only be to the 1 decimal place.",
     )
     coffeeScore: Dict[str, float] = Field(
         ...,
@@ -120,10 +120,7 @@ class Fields(BaseModel):
         ...,
         description="Score from 1–10. This should focus on the service recieved from the employees. Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
     )
-    foodScore: Dict[str, float] = Field(
-        ...,
-        description="Food score from 1–10. This should focus on the quality of the food served and offered.Ratings should be reflective of the quality of the shop within this category. If there are many medium reviews, bias towards somethin in the 7 range, scores in the 8 range should be indicitave of very good , and anything in a 9 should be excellent.",
-    )
+
     vibeScore: Dict[str, int] = Field(
         ...,
         description="Vibe score from 1–10. This should focus on the vibe of the cafe meaning what is the ambiance and how cool is the cafe. This is different from atmosphereScore in that the vibeScore is meant to help readers understand how cool the cafe is. Ratings of 9 and 10 should be reserved for exceptional cafes and used sparingly.",
@@ -139,7 +136,7 @@ class Fields(BaseModel):
     )
     craftExpertise: Dict[str, Document] = Field(
         ...,
-        description="Text about the coffee craft and preparation.Write up to 5 sentences, Detail their coffee quality and preparation, Describe barista expertise and service, Highlight special or unique drinks, Discuss seating arrangements and drinkware, Focus on the complete food and drink experience.  Do not start by restating the prompt or the name of the cafe within the first sentence.",
+        description="Text about the coffee craft and preparation.Write up to 5 sentences, Detail their coffee quality and preparation, Describe barista expertise and service, Highlight special or unique drinks, Discuss seating arrangements and drinkware, Focus on the complete coffee experience.  Do not start by restating the prompt or the name of the cafe within the first sentence.",
     )
     setsApart: Dict[str, Document] = Field(
         ...,

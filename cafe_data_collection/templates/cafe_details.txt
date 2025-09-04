@@ -98,9 +98,7 @@ EXAMPLE JSON SCHEMA THAT YOU MUST EXACTLY MATCH:
         "serviceScore": {{
           "en-US": 9
         }},
-        "foodScore": {{
-          "en-US": 7
-        }},
+
         "vibeScore": {{
           "en-US": 9
         }},
@@ -215,7 +213,7 @@ Guidelines for content:
 1. Ratings:
    - cafe_score - Overall Score: Float between 0-10, one decimal place. Consider all aspects.
    - coffee_score - Coffee Score: Float between 0-10, one decimal place. Quality, variety, and execution.
-   - Food Score: Float between 0-10, one decimal place. Quality and selection of food offerings.
+
    - Vibe Score: Integer between 1-10 (no decimals). Overall feeling and energy.
    - Atmosphere Score: Float between 0-10, one decimal place. Design, comfort, and ambiance.
    - Service Score: Float between 0-10, one decimal place. Staff knowledge, friendliness, efficiency.
@@ -259,7 +257,7 @@ Section-Specific Guidelines:
 - Describe barista expertise and service
 - Highlight special or unique drinks
 - Discuss seating arrangements and drinkware
-- Focus on the complete food and drink experience
+- Focus on the complete coffee experience
 
 [What Sets Them Apart]
 - Write 3-4 sentences
