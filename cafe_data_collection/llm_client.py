@@ -52,6 +52,28 @@ def _clean_llm_response(response: str) -> str:
     if start != -1 and end != -1 and end > start:
         cleaned = cleaned[start : end + 1]
 
+    # Handle Unicode and special characters that might break JSON parsing
+    # Replace common problematic characters
+    cleaned = cleaned.replace("'", '"')  # Replace single quotes with double quotes
+    cleaned = cleaned.replace('"', '"')  # Replace smart quotes with regular quotes
+    cleaned = cleaned.replace('"', '"')  # Replace smart quotes with regular quotes
+    cleaned = cleaned.replace(
+        """, "'")  # Replace smart apostrophes
+    cleaned = cleaned.replace(""",
+        "'",
+    )  # Replace smart apostrophes
+    cleaned = cleaned.replace("–", "-")  # Replace en dash with regular dash
+    cleaned = cleaned.replace("—", "-")  # Replace em dash with regular dash
+    cleaned = cleaned.replace("…", "...")  # Replace ellipsis with three dots
+
+    # Remove any null bytes or other control characters
+    cleaned = "".join(char for char in cleaned if ord(char) >= 32 or char in "\n\r\t")
+
+    # Normalize Unicode characters
+    import unicodedata
+
+    cleaned = unicodedata.normalize("NFKC", cleaned)
+
     return cleaned
 
 
@@ -311,8 +333,47 @@ class LLMClient:
             logger.debug(f"Original response length: {len(response)}")
             logger.debug(f"Cleaned response length: {len(cleaned_response)}")
 
+            # Log a preview of the cleaned response for debugging
+            preview_length = min(1000, len(cleaned_response))
+            logger.debug(
+                f"Cleaned response preview: {cleaned_response[:preview_length]}..."
+            )
+
             # Parse the response as a complete ContentfulCafeReviewPayload
-            response_json = json.loads(cleaned_response)
+            try:
+                response_json = json.loads(cleaned_response)
+            except json.JSONDecodeError as json_error:
+                logger.error(f"JSON parsing error: {json_error}")
+                logger.error(
+                    f"Error position: line {json_error.lineno}, column {json_error.colno}, char {json_error.pos}"
+                )
+
+                # Show the problematic area around the error
+                lines = cleaned_response.split("\n")
+                if json_error.lineno <= len(lines):
+                    problematic_line = lines[json_error.lineno - 1]
+                    logger.error(
+                        f"Problematic line {json_error.lineno}: {problematic_line}"
+                    )
+
+                    # Show the character at the error position
+                    if json_error.pos < len(cleaned_response):
+                        char_at_error = cleaned_response[json_error.pos]
+                        logger.error(
+                            f"Character at error position: '{char_at_error}' (ord: {ord(char_at_error)})"
+                        )
+
+                    # Show context lines
+                    if json_error.lineno > 1:
+                        logger.error(
+                            f"Previous line {json_error.lineno - 1}: {lines[json_error.lineno - 2]}"
+                        )
+                    if json_error.lineno < len(lines):
+                        logger.error(
+                            f"Next line {json_error.lineno + 1}: {lines[json_error.lineno]}"
+                        )
+
+                raise json_error
 
             # Extract the fields from the first entry
             fields = response_json["entries"][0]["fields"]
