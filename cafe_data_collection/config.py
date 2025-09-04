@@ -21,12 +21,12 @@ CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 # OpenAI Configuration
 OPENAI_MODEL = os.getenv(
     "OPENAI_MODEL",
-    "gpt-4.1-2025-04-14",  # Using the latest GPT-4 Turbo model
+    "gpt-5-mini-2025-08-07",  # Using the latest GPT-5 Mini model
 )
 OPENAI_TEMPERATURE = float(
-    os.getenv("OPENAI_TEMPERATURE", "0.7")
+    os.getenv("OPENAI_TEMPERATURE", "0.4")
 )  # Default temperature
-OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))  # Default max tokens
+OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
 RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10, "google_places": 10}
