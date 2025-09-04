@@ -9,10 +9,14 @@ load_dotenv()
 # OpenAI API Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv(
-    "OPENAI_MODEL", "gpt-4.1-2025-04-14"
-)  # Using the latest GPT-4 Turbo model
-OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.7"))
-OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2000"))
+    "OPENAI_MODEL", "gpt-5-mini-2025-08-07"
+)  # Using the latest GPT-5 model
+OPENAI_TEMPERATURE = float(
+    os.getenv("OPENAI_TEMPERATURE", "0.4")
+)  # Lower for structured JSON output
+OPENAI_MAX_TOKENS = int(
+    os.getenv("OPENAI_MAX_TOKENS", "3000")
+)  # Increased for medium-length articles
 
 # Rate Limiting
 RATE_LIMITS = {
