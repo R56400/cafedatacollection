@@ -29,6 +29,32 @@ from .utils.logging import setup_logger
 logger = setup_logger(__name__)
 
 
+def _clean_llm_response(response: str) -> str:
+    """Clean the LLM response to extract valid JSON."""
+    cleaned = response.strip()
+
+    # Remove markdown code blocks
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[7:]
+    elif cleaned.startswith("```"):
+        cleaned = cleaned[3:]
+
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+
+    cleaned = cleaned.strip()
+
+    # Try to find JSON content if there's extra text
+    # Look for the first { and last }
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+
+    if start != -1 and end != -1 and end > start:
+        cleaned = cleaned[start : end + 1]
+
+    return cleaned
+
+
 def _build_enrichment_prompt_from_schema() -> str:
     """Build the enrichment prompt dynamically from the Fields schema."""
     # Get the schema from the Fields model
@@ -280,8 +306,13 @@ class LLMClient:
             raise ValueError("Failed to get response from OpenAI API")
 
         try:
+            # Clean the response before parsing
+            cleaned_response = _clean_llm_response(response)
+            logger.debug(f"Original response length: {len(response)}")
+            logger.debug(f"Cleaned response length: {len(cleaned_response)}")
+
             # Parse the response as a complete ContentfulCafeReviewPayload
-            response_json = json.loads(response)
+            response_json = json.loads(cleaned_response)
 
             # Extract the fields from the first entry
             fields = response_json["entries"][0]["fields"]
