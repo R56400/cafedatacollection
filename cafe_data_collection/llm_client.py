@@ -271,6 +271,10 @@ class LLMClient:
                 logger.error("No response received from OpenAI API")
                 return []
 
+            logger.debug(
+                f"Raw LLM response: {response[:200]}..."
+            )  # Log first 200 chars
+
             try:
                 cafes = json.loads(response)
                 # Basic validation of required fields

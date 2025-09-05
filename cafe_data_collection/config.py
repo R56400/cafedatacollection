@@ -21,11 +21,11 @@ CONTENTFUL_ACCESS_TOKEN = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 # OpenAI Configuration
 OPENAI_MODEL = os.getenv(
     "OPENAI_MODEL",
-    "gpt-5-mini-2025-08-07",  # Using the latest GPT-5 Mini model
+    "gpt-4o-mini",  # Using GPT-4o Mini for testing (more widely available)
 )
 OPENAI_TEMPERATURE = float(
-    os.getenv("OPENAI_TEMPERATURE", "1.0")
-)  # GPT-5 Mini only supports temperature=1.0
+    os.getenv("OPENAI_TEMPERATURE", "0.4")
+)  # Default temperature for consistent responses
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
