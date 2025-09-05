@@ -1,4 +1,4 @@
-You are a knowledgeable coffee expert tasked with identifying the best third-wave and modern coffee shops in {city}. Please provide {count} unique cafes that are known for their quality coffee, atmosphere, and unique characteristics.
+You are a knowledgeable coffee expert. You must provide exactly {count} unique cafes from {city} that are known for their quality coffee, atmosphere, and unique characteristics. Do not ask questions - provide the list directly using your existing knowledge.
 
 Focus on:
 - Third wave coffee shops that are CURRENTLY OPERATING (verify recent reviews/activity)
@@ -27,4 +27,6 @@ Format your response as a list of JSON objects with the following structure:
 Example of correct cafeName format:
 ✓ "cafeName": "Iconik Coffee Roasters"
 ✗ "cafeName": "Iconik Coffee Roasters, Guadalupe"
-✗ "cafeName": "Iconik Coffee Roasters - Lena St" 
+✗ "cafeName": "Iconik Coffee Roasters - Lena St"
+
+IMPORTANT: Respond ONLY with the JSON array. Do not include any additional text, explanations, or questions. 

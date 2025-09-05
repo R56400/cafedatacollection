@@ -256,8 +256,13 @@ class LLMClient:
         logger.info(f"Getting {num_cafes} cafes for city: {city}")
 
         try:
+            # Format the template with actual values
+            formatted_template = self.cafe_search_template.replace(
+                "{city}", city
+            ).replace("{count}", str(num_cafes))
+
             messages = [
-                {"role": "system", "content": self.cafe_search_template},
+                {"role": "system", "content": formatted_template},
                 {"role": "user", "content": f"Find {num_cafes} cafes in {city}"},
             ]
 
