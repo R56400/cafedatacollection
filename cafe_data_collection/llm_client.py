@@ -148,6 +148,10 @@ class LLMClient:
                 "OpenAI API key not found. Please set OPENAI_API_KEY in your .env file."
             )
 
+        logger.debug(f"LLMClient initialized with API key length: {len(self.api_key)}")
+        logger.debug(f"API key starts with 'sk-': {self.api_key.startswith('sk-')}")
+        logger.debug(f"API key preview: {self.api_key[:10]}...{self.api_key[-4:]}")
+
         # Load only the cafe search template
         self.cafe_search_template = self._load_template("cafe_search.txt")
 
