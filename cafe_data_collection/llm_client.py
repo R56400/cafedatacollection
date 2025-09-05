@@ -220,6 +220,9 @@ class LLMClient:
                             "Invalid OpenAI API key. Please check your OPENAI_API_KEY in .env"
                         )
 
+                    if response.status_code != 200:
+                        logger.error(f"API Error Response: {response.text}")
+
                     response.raise_for_status()
                     result = response.json()
                     logger.debug(f"Raw API response: {json.dumps(result, indent=2)}")
