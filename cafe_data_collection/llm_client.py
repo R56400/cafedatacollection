@@ -225,15 +225,27 @@ class LLMClient:
 
                     response.raise_for_status()
                     result = response.json()
-                    logger.debug(f"Raw API response: {json.dumps(result, indent=2)}")
+                    logger.debug(f"Raw API response keys: {list(result.keys())}")
 
-                    if "choices" not in result or not result["choices"]:
-                        logger.error("No choices in API response")
+                    if "choices" not in result:
+                        logger.error("No 'choices' key in API response")
+                        logger.debug(f"Full response: {json.dumps(result, indent=2)}")
+                        return None
+
+                    if not result["choices"]:
+                        logger.error("Empty choices array in API response")
                         logger.debug(f"Full response: {json.dumps(result, indent=2)}")
                         return None
 
                     logger.info("Successfully received response from OpenAI API")
-                    return result["choices"][0]["message"]["content"]
+                    content = result["choices"][0]["message"]["content"]
+                    logger.debug(
+                        f"Response content length: {len(content) if content else 0}"
+                    )
+                    logger.debug(
+                        f"Response content preview: {content[:200] if content else 'None'}..."
+                    )
+                    return content
 
             except (httpx.ReadTimeout, httpx.ConnectTimeout) as e:
                 retries += 1

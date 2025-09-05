@@ -24,8 +24,8 @@ OPENAI_MODEL = os.getenv(
     "gpt-4o-mini",  # Using GPT-4o Mini for testing (more widely available)
 )
 OPENAI_TEMPERATURE = float(
-    os.getenv("OPENAI_TEMPERATURE", "0.4")
-)  # Default temperature for consistent responses
+    os.getenv("OPENAI_TEMPERATURE", "1.0")
+)  # Many models now only support temperature=1.0
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
