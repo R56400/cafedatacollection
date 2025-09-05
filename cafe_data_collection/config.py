@@ -24,12 +24,13 @@ OPENAI_MODEL = os.getenv(
     "gpt-5-mini-2025-08-07",  # Using the latest GPT-5 Mini model
 )
 OPENAI_TEMPERATURE = float(
-    os.getenv("OPENAI_TEMPERATURE", "0.4")
-)  # Default temperature
+    os.getenv("OPENAI_TEMPERATURE", "1.0")
+)  # GPT-5 Mini only supports temperature=1.0
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "4000"))  # Default max tokens
 
 # Rate Limiting (requests per minute)
-RATE_LIMITS = {"openai": 10, "google_maps": 10, "contentful": 10, "google_places": 10}
+# OpenAI typically allows 3,000-10,000 RPM depending on your tier, so 60 RPM is very conservative
+RATE_LIMITS = {"openai": 60, "google_maps": 10, "contentful": 10, "google_places": 10}
 
 # Retry Configuration
 MAX_RETRIES = 3
